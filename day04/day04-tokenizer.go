@@ -2,11 +2,9 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	"strconv"
 	"strings"
 	"text/scanner"
-	"time"
 )
 
 func Min(x, y int) int {
@@ -26,8 +24,8 @@ func Max(x, y int) int {
 //go:embed input.txt
 var input string
 
-func main() {
-	start := time.Now()
+func Solve() {
+	// start := time.Now()
 
 	fully_overlap_count := 0
 	partial_overlap_count := 0
@@ -58,15 +56,15 @@ func main() {
 			fully_overlap_count++
 		}
 
-		// if !(elf1.end < elf2.start || elf1.end < elf2.start) {
-		// if (elf1.end >= elf2.start && elf1.start <= elf2.end) || (elf2.end >= elf1.start && elf2.start <= elf1.end) {
-		if Max(elf1.start, elf2.start) <= Min(elf1.end, elf2.end) {
+		if !(elf1.end < elf2.start || elf2.end < elf1.start) {
+			// if (elf1.end >= elf2.start && elf1.start <= elf2.end) || (elf2.end >= elf1.start && elf2.start <= elf1.end) {
+			// if Max(elf1.start, elf2.start) <= Min(elf1.end, elf2.end) {
 			partial_overlap_count++
 		}
 	}
 
-	fmt.Println(time.Since(start))
+	// fmt.Println(time.Since(start))
 
-	fmt.Printf(("Part 1: %d\n"), fully_overlap_count)
-	fmt.Printf(("Part 2: %d\n"), partial_overlap_count)
+	// fmt.Printf(("Part 1: %d\n"), fully_overlap_count)
+	// fmt.Printf(("Part 2: %d\n"), partial_overlap_count)
 }
