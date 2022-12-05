@@ -23,7 +23,7 @@
 #### Comments
 
 
-### [Day 04: TBA](https://adventofcode.com/2022/day/4)
+### [Day 04: Camp Cleanup](https://adventofcode.com/2022/day/4)
 [problem](https://adventofcode.com/2022/day/4) / [solution](./day04)
 
 
@@ -31,7 +31,7 @@
 
 
 
-### [Day 05: TBA](https://adventofcode.com/2022/day/5)
+### [Day 05: Supply Stacks](https://adventofcode.com/2022/day/5)
 [problem](https://adventofcode.com/2022/day/5) / [solution](./day05)
 
 
