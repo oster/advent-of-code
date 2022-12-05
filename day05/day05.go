@@ -18,9 +18,11 @@ func PrintTopOfStacks(stacks []ByteStack) {
 }
 
 func PrintStacks(stacks []ByteStack) {
+	fmt.Print("[")
 	for _, stack := range stacks {
-		stack.Print()
+		fmt.Print(string(" [" + stack.ToString() + "]"))
 	}
+	fmt.Println(" ]")
 }
 
 type Move struct {

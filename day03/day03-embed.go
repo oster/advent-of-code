@@ -2,18 +2,13 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	"strings"
-	"time"
 )
 
 //go:embed input.txt
 var input string
 
-func main() {
-
-	start := time.Now()
-
+func SolveEmbed() (int, int) {
 	arr_bags := strings.Split(strings.TrimSuffix(input, "\n"), "\n")
 	var bags [300]string
 	copy(bags[:], arr_bags)
@@ -43,10 +38,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(time.Since(start))
-
 	// Part 2
-	start = time.Now()
 	totalBadgePriorities := 0
 
 	for bagIndex := 0; bagIndex < len(bags); bagIndex += 3 {
@@ -74,7 +66,5 @@ func main() {
 		}
 	}
 
-	fmt.Println(time.Since(start))
-	fmt.Printf(("Part 1: %d\n"), totalPriorities)
-	fmt.Printf(("Part 2: %d\n"), totalBadgePriorities)
+	return totalPriorities, totalBadgePriorities
 }

@@ -2,15 +2,13 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"sort"
 	"strconv"
 )
 
-func main() {
-
+func Solve() (int, int) {
 	dataFile, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal("failed to open data file")
@@ -47,12 +45,12 @@ func main() {
 			max_calories = sum
 		}
 	}
-	fmt.Printf(("Part 1: %d\n"), max_calories)
 
 	sort.Slice(sums_of_calories, func(i, j int) bool {
 		return sums_of_calories[i] > sums_of_calories[j]
 	})
 
 	sum_of_three_with_most_calories := sums_of_calories[0] + sums_of_calories[1] + sums_of_calories[2]
-	fmt.Printf("Part 2: %d\n", sum_of_three_with_most_calories)
+
+	return max_calories, sum_of_three_with_most_calories
 }

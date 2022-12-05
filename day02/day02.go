@@ -2,12 +2,11 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 )
 
-func main() {
+func Solve() (int, int) {
 
 	// A: Rock, B: Paper, C: Scissors
 	// X: Rock, Y: Paper, Z: Scissors
@@ -65,6 +64,5 @@ func main() {
 
 	dataFile.Close()
 
-	fmt.Printf(("Part 1: %d\n"), total_score)
-	fmt.Printf(("Part 2: %d\n"), total_score_part2)
+	return total_score, total_score_part2
 }

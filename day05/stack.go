@@ -11,6 +11,10 @@ func (stack ByteStack) Print() {
 	fmt.Println()
 }
 
+func (stack ByteStack) ToString() string {
+	return string(stack)
+}
+
 func NewStack() ByteStack {
 	return make([]byte, 0)
 }

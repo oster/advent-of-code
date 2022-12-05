@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 )
@@ -15,7 +14,7 @@ func GetItemPriority(item rune) int {
 	}
 }
 
-func main() {
+func Solve() (int, int) {
 	dataFile, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal("failed to open data file")
@@ -72,6 +71,5 @@ func main() {
 		totalBadgePriorities += GetItemPriority(duplicatedItem)
 	}
 
-	fmt.Printf(("Part 1: %d\n"), totalPriorities)
-	fmt.Printf(("Part 2: %d\n"), totalBadgePriorities)
+	return totalPriorities, totalBadgePriorities
 }

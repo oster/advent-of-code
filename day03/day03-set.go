@@ -2,20 +2,11 @@ package main
 
 import (
 	"bufio"
-	"fmt"
-	mapset "github.com/deckarep/golang-set/v2"
 	"log"
 	"os"
-	"time"
-)
 
-func GetItemPriority(item rune) int {
-	if item >= 'a' && item <= 'z' {
-		return int(item) - int('a') + 1
-	} else { // assume item >= 'A' and item <= 'Z'
-		return int(item) - int('A') + 26 + 1
-	}
-}
+	mapset "github.com/deckarep/golang-set/v2"
+)
 
 func CreateSet(bag string) mapset.Set[rune] {
 	m := mapset.NewSet[rune]()
@@ -25,7 +16,7 @@ func CreateSet(bag string) mapset.Set[rune] {
 	return m
 }
 
-func main() {
+func SolveWithSet() (int, int) {
 	dataFile, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal("failed to open data file")
@@ -49,10 +40,8 @@ func main() {
 		duplicatedItem, _ := firstCompartment.Intersect(secondComparment).Pop()
 		totalPriorities += GetItemPriority(duplicatedItem)
 	}
-	fmt.Printf(("Part 1: %d\n"), totalPriorities)
 
 	// Part 2
-	start := time.Now()
 	totalBadgePriorities := 0
 
 	for bagIndex := 0; bagIndex < len(bags); bagIndex += 3 {
@@ -60,6 +49,5 @@ func main() {
 		totalBadgePriorities += GetItemPriority(duplicatedItem)
 	}
 
-	fmt.Printf(("Part 2: %d\n"), totalBadgePriorities)
-	fmt.Println(time.Since(start))
+	return totalPriorities, totalBadgePriorities
 }

@@ -24,11 +24,9 @@ func Max(x, y int) int {
 //go:embed input.txt
 var input string
 
-func Solve() {
-	// start := time.Now()
-
-	fully_overlap_count := 0
-	partial_overlap_count := 0
+func SolveEmbed() (int, int) {
+	fullyOverlapCount := 0
+	partialOverlapCount := 0
 
 	type IdRange struct {
 		start int
@@ -43,7 +41,6 @@ func Solve() {
 	s.Whitespace |= 1<<'-' | 1<<','
 
 	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
-
 		elf1.start, _ = strconv.Atoi(s.TokenText())
 		s.Scan()
 		elf1.end, _ = strconv.Atoi(s.TokenText())
@@ -53,18 +50,15 @@ func Solve() {
 		elf2.end, _ = strconv.Atoi(s.TokenText())
 
 		if (elf1.start <= elf2.start && elf1.end >= elf2.end) || (elf2.start <= elf1.start && elf2.end >= elf1.end) {
-			fully_overlap_count++
+			fullyOverlapCount++
 		}
 
 		if !(elf1.end < elf2.start || elf2.end < elf1.start) {
 			// if (elf1.end >= elf2.start && elf1.start <= elf2.end) || (elf2.end >= elf1.start && elf2.start <= elf1.end) {
 			// if Max(elf1.start, elf2.start) <= Min(elf1.end, elf2.end) {
-			partial_overlap_count++
+			partialOverlapCount++
 		}
 	}
 
-	// fmt.Println(time.Since(start))
-
-	// fmt.Printf(("Part 1: %d\n"), fully_overlap_count)
-	// fmt.Printf(("Part 2: %d\n"), partial_overlap_count)
+	return fullyOverlapCount, partialOverlapCount
 }
