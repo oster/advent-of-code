@@ -11,20 +11,22 @@ func FindMarker(data string, windowSize int) int {
 	index := -2
 	var flags ['z' + 1]byte
 
-	for i, c := range input {
-		flags[c] += 1
+	for i := 0; i < windowSize; i++ {
+		flags[data[i]] += 1
+	}
 
-		if i >= windowSize {
-			found := true
-			for j := 0; found && j < windowSize; j++ {
-				found = found && (flags[data[i-j]] == 1)
-			}
-			if found {
-				index = i
-				break
-			}
-			flags[input[i-windowSize]] -= 1
+	for i := windowSize; i < len(data); i++ {
+		flags[data[i]] += 1
+
+		found := true
+		for j := 0; found && j < windowSize; j++ {
+			found = found && (flags[data[i-j]] == 1)
 		}
+		if found {
+			index = i
+			break
+		}
+		flags[data[i-windowSize]] -= 1
 	}
 	return index + 1
 }
