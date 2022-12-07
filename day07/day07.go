@@ -20,7 +20,7 @@ type FSNode struct {
 	size     uint
 	name     string
 	parent   *FSNode
-	children map[string]*FSNode
+	children []*FSNode
 }
 
 func NewFS(filename string) *FSNode {
@@ -36,11 +36,11 @@ func NewFS(filename string) *FSNode {
 func (node *FSNode) AddDir(directoryName string) *FSNode {
 	dir := NewFS(directoryName)
 	if node.children == nil {
-		node.children = make(map[string]*FSNode, 0)
+		node.children = make([]*FSNode, 0)
 	}
 	dir.parent = node
 	dir.fstype = DIRECTORY_TYPE
-	node.children[directoryName] = dir
+	node.children = append(node.children, dir)
 
 	return dir
 }
@@ -48,19 +48,22 @@ func (node *FSNode) AddDir(directoryName string) *FSNode {
 func (node *FSNode) AddFile(fileName string, fileSize uint) *FSNode {
 	file := NewFS(fileName)
 	if node.children == nil {
-		node.children = make(map[string]*FSNode, 0)
+		node.children = make([]*FSNode, 0)
 	}
 	file.parent = node
 	file.fstype = FILE_TYPE
 	file.size = fileSize
-	node.children[fileName] = file
+	node.children = append(node.children, file)
+	// node.children[fileName] = file
 
 	return file
 }
 
 func (node *FSNode) ChangeDir(directoryName string) (*FSNode, error) {
-	if node.children[directoryName] != nil {
-		return node.children[directoryName], nil
+	for _, child := range node.children {
+		if child.name == directoryName {
+			return child, nil
+		}
 	}
 	return nil, errors.New("Directory not found when cd " + directoryName)
 }
@@ -108,33 +111,33 @@ func BuildTree(description string) *FSNode {
 	pwd := root
 
 	scanner := bufio.NewScanner(strings.NewReader(description))
+	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		line := strings.TrimSuffix(scanner.Text(), "\r\n")
-
+		line := scanner.Text()
 		if line[0] == '$' {
-			if line[2] == 'c' { // cd command
+			switch line[2] {
+			case 'c': // cd command
 				path := line[5:]
-				if path == "/" {
+				switch path {
+				case "/":
 					pwd = root
-				} else if path == ".." {
+				case "..":
 					pwd = pwd.parent
-				} else {
+				default:
 					var err error
 					pwd, err = pwd.ChangeDir(path)
 					if err != nil {
 						log.Fatalln(err)
 					}
 				}
-			} else if line[2] == 'l' { // ls command
-				// skipping since we parse the output later on
-			} else {
+			case 'l': // ls command
+
+			default:
 				log.Fatalln("Unkown command")
 			}
 		} else {
-			var fileName string
-
 			if line[0] == 'd' { // directory
-				fileName = line[4:]
+				fileName := line[4:]
 				pwd.AddDir(fileName)
 			} else { // file
 				i := 0
@@ -145,8 +148,7 @@ func BuildTree(description string) *FSNode {
 				if err != nil {
 					log.Fatalln("invalid size", line[:i-1])
 				}
-
-				fileName = line[i:]
+				fileName := line[i:]
 				pwd.AddFile(fileName, uint(fileSize))
 			}
 		}
