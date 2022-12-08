@@ -107,6 +107,26 @@ func ComputeScenicScore(heights [N][N]byte, visibilities [N][N]bool) int {
 			scenicScore := 1
 			houseHeight := heights[i][j]
 
+			// we consider all directions (north, south, east, west)
+			// SLOWER ;(
+			// for _, steps := range [][2]int{{-1, 0}, {1, 0}, {0, 1}, {0, -1}} {
+			// 	distance := 0
+
+			// 	k := i + steps[0]
+			// 	l := j + steps[1]
+
+			// 	for k >= 0 && k < n && l >= 0 && l < n {
+			// 		distance++
+
+			// 		if heights[k][l] >= houseHeight {
+			// 			break
+			// 		}
+			// 		k += steps[0]
+			// 		l += steps[1]
+			// 	}
+			// 	scenicScore *= distance
+			// }
+
 			// looking at north
 			distance := 0
 			for k := i - 1; k >= 0; k-- {
