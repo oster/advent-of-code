@@ -39,7 +39,7 @@
 
 
 
-### [Day 06: TBA](https://adventofcode.com/2022/day/6)
+### [Day 06: Tuning Trouble](https://adventofcode.com/2022/day/6)
 [problem](https://adventofcode.com/2022/day/6) / [solution](./day06)
 
 
@@ -47,7 +47,7 @@
 
 
 
-### [Day 07: TBA](https://adventofcode.com/2022/day/7)
+### [Day 07: No Space Left On Device](https://adventofcode.com/2022/day/7)
 [problem](https://adventofcode.com/2022/day/7) / [solution](./day07)
 
 
@@ -55,7 +55,7 @@
 
 
 
-### [Day 08: TBA](https://adventofcode.com/2022/day/8)
+### [Day 08: Treetop Tree House](https://adventofcode.com/2022/day/8)
 [problem](https://adventofcode.com/2022/day/8) / [solution](./day08)
 
 
