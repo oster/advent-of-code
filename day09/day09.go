@@ -170,7 +170,7 @@ func ReplayPart1(log []Move) []Point {
 	}
 
 	result = RemoveDuplicate(result)
-	DisplayAllPointsMatrice(10, result)
+	//DisplayAllPointsMatrice(10, result)
 
 	return result
 }
