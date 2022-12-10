@@ -11,104 +11,78 @@ import (
 //go:embed input.txt
 var input string
 
-func computeSignal(cycle int, register int) int {
-	signalStrength := 0
+const SCREEN_WIDTH = 40
+const SCREEN_HEIGHT = 6
 
-	signalStrength = register * cycle
-	// fmt.Println("cycle: ", cycle, "register: ", register, "\tsignal strength : ", signalStrength)
+var screen [SCREEN_HEIGHT][SCREEN_WIDTH]bool
 
-	return signalStrength
+var cycle int = 0
+var register int = 1
+var sumOfSignalStrength int = 0
+
+func UpdateSignalStrength() {
+	if (cycle-20)%40 == 0 {
+		sumOfSignalStrength += register * cycle
+	}
 }
 
-var screen [6][40]bool
-
-func printScreen() {
-	for _, line := range screen {
-		for _, pixel := range line {
-			if pixel {
-				fmt.Print("#")
+func PrintScreen() {
+	var scr string
+	for row := 0; row < SCREEN_HEIGHT; row++ {
+		for col := 0; col < SCREEN_WIDTH; col++ {
+			if screen[row][col] {
+				scr += "█"
 			} else {
-				fmt.Print(".")
+				scr += "."
 			}
 		}
-		fmt.Println()
+		scr += "\n"
 	}
+	fmt.Println(scr)
 }
 
-var y int
+var row int = 0
 
-func Crt(cycle int, register int) {
-	// fmt.Println(register)
-
-	//fmt.Println(cycle, "y:", y)
-	sync := cycle % 40
-	if sync == register-1 || sync == register || sync == register+1 {
-		// screen[y][sync] = screen[y][sync] || true
-		screen[y][sync] = true
+func Crt() {
+	synced := cycle % SCREEN_WIDTH
+	if synced == register-1 || synced == register || synced == register+1 {
+		screen[row][synced] = true
 	}
 
-	if (cycle+1)%40 == 0 {
-		y = (y + 1) % 7
+	if (cycle+1)%SCREEN_WIDTH == 0 {
+		row++
 	}
 }
 
 func Part1() int {
-	instructionCounter := 0
-
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	scanner.Split(bufio.ScanLines)
 
-	cycle := 0
-	register := 1
-
-	signalStrength := 0
-	sumOfSignalStrength := 0
-
-	Crt(cycle, register)
-
+	Crt()
 	for scanner.Scan() {
-		line := strings.TrimRight(scanner.Text(), "\n\r")
+		line := scanner.Text()
 
+		// noop or 1st cycle of addx
 		cycle++
-		instructionCounter++
+		UpdateSignalStrength()
+		Crt()
 
-		if cycle == 20 || (cycle-20)%40 == 0 {
-			signalStrength = computeSignal(cycle, register)
-			sumOfSignalStrength += signalStrength
-		}
-
-		Crt(cycle, register)
-
-		if line[0] == 'n' { // noop
-			// skip
-		} else if line[0] == 'a' { // addx
-			value, _ := strconv.Atoi(line[5:])
-
+		if line[0] == 'a' { // 2nd cycle of addx
 			cycle++
-
-			if cycle == 20 || (cycle-20)%40 == 0 {
-				signalStrength = computeSignal(cycle, register)
-				sumOfSignalStrength += signalStrength
-			}
+			UpdateSignalStrength()
+			value, _ := strconv.Atoi(line[5:])
 			register += value
-
-			Crt(cycle, register)
-
+			Crt()
 		}
-
 	}
 
-	// fmt.Print("instruction counter: ", instructionCounter, "\t")
-	// fmt.Println("cycle: ", cycle, " register: ", register)
-
 	return sumOfSignalStrength
-
 }
 
 func Solve() (int, int) {
 	part1 := Part1()
+	PrintScreen()
 
-	printScreen()
 	part2 := 0
 	return part1, part2 // 13140/17020 , / RLEZFLGE
 }
