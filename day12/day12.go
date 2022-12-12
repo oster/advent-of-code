@@ -3,8 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-
-	"github.com/edwingeng/deque/v2"
 )
 
 //go:embed input.txt
@@ -45,36 +43,40 @@ func Contains(slice []Point, lookingFor Point) bool {
 }
 
 func FindPath(start Point, end Point, heightsMap [HEIGHT][WIDTH]int, expectedHeight int, reversed bool) int {
+	// we keep these assignements there only for memory location of heightsMap?
 	heightsMap[start.y][start.x] = 'a'
 	heightsMap[end.y][end.x] = 'z'
 
 	var moves [4]Point = [4]Point{{0, 1}, {1, 0}, {-1, 0}, {0, -1}}
-
 	var visitedPositions []Point = make([]Point, 0)
-
-	var positionsToVisit *deque.Deque[Path] = deque.NewDeque[Path]()
+	var positionsToVisit []Path = make([]Path, 0)
+	var empytPath Path = Path{Point{0, 0}, 0}
 
 	var stepAutorised func(int) bool
 
 	if !reversed {
 		stepAutorised = func(step int) bool { return step <= 1 }
-		positionsToVisit.PushBack(Path{start, 0})
+		positionsToVisit = append(positionsToVisit, Path{start, 0})
 	} else {
 		stepAutorised = func(step int) bool { return step >= -1 }
-		positionsToVisit.PushBack(Path{end, 0})
+		positionsToVisit = append(positionsToVisit, Path{end, 0})
 
-		tmp := start
-		start = end
-		end = tmp
+		// in case, we check the end rather than the height
+		// tmp := start
+		// start = end
+		// end = tmp
 	}
 
 	var current Path
 	var found bool = false
-	for !found && !positionsToVisit.IsEmpty() {
-		current = positionsToVisit.PopFront()
+	for !found && len(positionsToVisit) > 0 {
+		current = positionsToVisit[0]
+		positionsToVisit[0] = empytPath
+		positionsToVisit = positionsToVisit[1:]
+
 		heightOfCurrent := heightsMap[current.p.y][current.p.x]
 
-		if heightOfCurrent == expectedHeight {
+		if heightOfCurrent == expectedHeight { // we may want to check that current == end rather than only the height
 			found = true
 			break
 		}
@@ -87,7 +89,7 @@ func FindPath(start Point, end Point, heightsMap [HEIGHT][WIDTH]int, expectedHei
 
 				if stepAutorised(step) && !Contains(visitedPositions, next) {
 					visitedPositions = append(visitedPositions, next)
-					positionsToVisit.PushBack(Path{next, current.length + 1})
+					positionsToVisit = append(positionsToVisit, Path{next, current.length + 1})
 				}
 			}
 		}
@@ -108,8 +110,10 @@ func Solve() (int, int) {
 			switch c {
 			case 'S':
 				start = Point{row, line}
+				heightsMap[line][row] = 'a'
 			case 'E':
 				end = Point{row, line}
+				heightsMap[line][row] = 'z'
 			default:
 				heightsMap[line][row] = int(c)
 			}
