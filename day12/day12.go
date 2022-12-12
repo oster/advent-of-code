@@ -48,7 +48,7 @@ func FindPath(start Point, end Point, heightsMap [HEIGHT][WIDTH]int, expectedHei
 	heightsMap[start.y][start.x] = 'a'
 	heightsMap[end.y][end.x] = 'z'
 
-	var moves []Point = []Point{Point{0, 1}, Point{1, 0}, Point{-1, 0}, Point{0, -1}}
+	var moves [4]Point = [4]Point{{0, 1}, {1, 0}, {-1, 0}, {0, -1}}
 
 	var visitedPositions []Point = make([]Point, 0)
 
