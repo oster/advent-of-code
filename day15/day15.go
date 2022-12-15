@@ -112,6 +112,7 @@ func SensorAt(x int, y int) *Sensor {
 func SortSensors() {
 	sort.Slice(sensors, func(i int, j int) bool {
 		return sensors[i].coveredDistance > sensors[j].coveredDistance
+		// return sensors[i].x > sensors[j].x && sensors[i].y > sensors[j].y
 	})
 }
 
@@ -185,29 +186,64 @@ func BruteForcePart1(scanY int) int {
 		}
 	}
 
-	// var scanLine []byte = make([]byte, (window.x2+maxCoveredRange)-(window.x1-maxCoveredRange))
 	xUpperBound := window.x2 + maxCoveredRange
-	// shiftX := maxCoveredRange - window.x1
-
 	count := 0
 
-	for x := window.x1 - maxCoveredRange; x < xUpperBound; x++ {
-		if SensorAt(x, scanY) != nil {
-			// scanLine[x+shiftX] = 'S'
-			continue
-		}
-		if BeaconAt(x, scanY) != nil {
-			// scanLine[x+shiftX] = 'B'
-			continue
+	// parallel code
+	var countChannel chan int = make(chan int)
+	defer close(countChannel)
+
+	Step := (xUpperBound - (window.x1 - maxCoveredRange)) / WORKER_COUNT
+	for i := window.x1 - maxCoveredRange; i < xUpperBound; i += Step {
+		iend := (i + Step) - 1
+		if iend > xUpperBound {
+			iend = xUpperBound
 		}
 
-		for _, sensor := range sensors {
-			if sensor.coveredDistance >= ManhattanDistance(sensor.x, sensor.y, x, scanY) {
-				// scanLine[x+shiftX] = '#'
-				count++
-				break
+		go func(start int, end int) {
+			count := 0
+
+			for x := start; x <= end; x++ {
+				if SensorAt(x, scanY) != nil {
+					continue
+				}
+				if BeaconAt(x, scanY) != nil {
+					continue
+				}
+
+				for _, sensor := range sensors {
+					if sensor.coveredDistance > ManhattanDistance(sensor.x, sensor.y, x, scanY) {
+						count++
+						break
+					}
+				}
 			}
-		}
+			countChannel <- count
+		}(i, iend)
+	}
+
+	// non-parallel code
+	//
+	// for x := window.x1 - maxCoveredRange; x < xUpperBound; x++ {
+	// 	if SensorAt(x, scanY) != nil {
+	// 		continue
+	// 	}
+	// 	if BeaconAt(x, scanY) != nil {
+	// 		continue
+	// 	}
+
+	// 	for _, sensor := range sensors {
+	// 		d := sensor.coveredDistance - ManhattanDistance(sensor.x, sensor.y, x, scanY)
+	// 		if d > 0 {
+	// 			count += d
+	// 			x += d - 1
+	// 			break
+	// 		}
+	// 	}
+	// }
+
+	for i := 0; i <= WORKER_COUNT; i++ {
+		count += <-countChannel
 	}
 
 	return count
@@ -236,11 +272,12 @@ func ScanLine(scanY int, upperBound int, beaconChannel chan *Beacon) {
 			}
 		}
 		if !covered {
-			//fmt.Println(scanX*4000000 + scanY)
 			beaconChannel <- &Beacon{scanX, scanY}
 		}
 	}
 }
+
+const WORKER_COUNT = 10
 
 func BruteForcePart2(upperBound int) int {
 	var beaconChannel chan *Beacon = make(chan *Beacon)
@@ -248,8 +285,15 @@ func BruteForcePart2(upperBound int) int {
 
 	var distressBeacon *Beacon = nil
 	var tuningFrequency int = -1
-	for scanY := 0; scanY <= upperBound; scanY++ {
-		go ScanLine(scanY, upperBound, beaconChannel)
+
+	Step := upperBound / WORKER_COUNT
+
+	for i := 0; i < upperBound; i += Step {
+		go func(start int, end int) {
+			for scanY := start; scanY <= end; scanY++ {
+				ScanLine(scanY, upperBound, beaconChannel)
+			}
+		}(i, (i+Step)-1)
 	}
 
 	distressBeacon = <-beaconChannel
@@ -268,6 +312,8 @@ func Solve() (int, int) {
 	// part1 := BruteForcePart1(10) // 26 for sample.txt
 	// part2 := BruteForcePart2(20) // (14,11) 56000011 for sample
 	part1 := BruteForcePart1(2000000) // 5181556 to low
+	// part1 := 0
 	part2 := BruteForcePart2(4000000) // (14,11) 56000011 for sample
-	return part1, part2               // 26 / 5181556, (14,11) 56000011 / (3204400,3219131) 12817603219131
+	// part2 := 0
+	return part1, part2 // 26 / 5181556, (14,11) 56000011 / (3204400,3219131) 12817603219131
 }
