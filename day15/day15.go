@@ -180,12 +180,12 @@ func GenerateMap() {
 
 func BruteForcePart1(scanY int) int {
 	maxCoveredRange := 0
-	for _, sensor := range sensors {
-		if sensor.coveredDistance > maxCoveredRange {
-			maxCoveredRange = sensor.coveredDistance
-		}
-	}
-
+	// for _, sensor := range sensors {
+	// 	if sensor.coveredDistance > maxCoveredRange {
+	// 		maxCoveredRange = sensor.coveredDistance
+	// 	}
+	// }
+	maxCoveredRange = sensors[0].coveredDistance // since (reversed) sorted by covering range
 	xUpperBound := window.x2 + maxCoveredRange
 	count := 0
 
@@ -194,7 +194,7 @@ func BruteForcePart1(scanY int) int {
 	defer close(countChannel)
 
 	Step := (xUpperBound - (window.x1 - maxCoveredRange)) / WORKER_COUNT
-	for i := window.x1 - maxCoveredRange; i < xUpperBound; i += Step {
+	for i := window.x1 - maxCoveredRange; i <= xUpperBound; i += Step {
 		iend := (i + Step) - 1
 		if iend > xUpperBound {
 			iend = xUpperBound
@@ -212,8 +212,15 @@ func BruteForcePart1(scanY int) int {
 				}
 
 				for _, sensor := range sensors {
-					if sensor.coveredDistance > ManhattanDistance(sensor.x, sensor.y, x, scanY) {
+					d := sensor.coveredDistance - ManhattanDistance(sensor.x, sensor.y, x, scanY)
+					if d == 0 {
 						count++
+						break
+					}
+					if d > 0 {
+						step, _ := min(d, end-x+1)
+						count += step
+						x += d - 1
 						break
 					}
 				}
@@ -224,7 +231,7 @@ func BruteForcePart1(scanY int) int {
 
 	// non-parallel code
 	//
-	// for x := window.x1 - maxCoveredRange; x < xUpperBound; x++ {
+	// for x := window.x1 - maxCoveredRange; x <= xUpperBound; x++ {
 	// 	if SensorAt(x, scanY) != nil {
 	// 		continue
 	// 	}
@@ -234,6 +241,10 @@ func BruteForcePart1(scanY int) int {
 
 	// 	for _, sensor := range sensors {
 	// 		d := sensor.coveredDistance - ManhattanDistance(sensor.x, sensor.y, x, scanY)
+	// 		if d == 0 {
+	// 			count++
+	// 			break
+	// 		}
 	// 		if d > 0 {
 	// 			count += d
 	// 			x += d - 1
@@ -277,7 +288,7 @@ func ScanLine(scanY int, upperBound int, beaconChannel chan *Beacon) {
 	}
 }
 
-const WORKER_COUNT = 10
+var WORKER_COUNT int
 
 func BruteForcePart2(upperBound int) int {
 	var beaconChannel chan *Beacon = make(chan *Beacon)
@@ -311,8 +322,10 @@ func Solve() (int, int) {
 
 	// part1 := BruteForcePart1(10) // 26 for sample.txt
 	// part2 := BruteForcePart2(20) // (14,11) 56000011 for sample
+	WORKER_COUNT = 30
 	part1 := BruteForcePart1(2000000) // 5181556 to low
 	// part1 := 0
+	WORKER_COUNT = 10
 	part2 := BruteForcePart2(4000000) // (14,11) 56000011 for sample
 	// part2 := 0
 	return part1, part2 // 26 / 5181556, (14,11) 56000011 / (3204400,3219131) 12817603219131
