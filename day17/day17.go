@@ -15,30 +15,23 @@ func max(a int, b int) int {
 	return b
 }
 
-const HEIGHT = 4000
-const WIDTH = 9
+// const HEIGHT = 2_000_000_000_000 // 1_514_285_714_288
+const HEIGHT = 4_000
 
-type Board [HEIGHT][WIDTH]bool
+type Board []byte
 
-func NewBoard() (board *Board) {
-	board = &Board{}
-
-	for y := 0; y < HEIGHT; y++ {
-		board[y][0] = true
-		board[y][WIDTH-1] = true
-	}
-	for x := 0; x < WIDTH; x++ {
-		board[0][x] = true
-	}
-
+func NewBoard() (board Board) {
+	board = make([]byte, HEIGHT)
+	board[0] = 0b11111111
+	//fmt.Println("memory allocation done")
 	return board
 }
 
-func (board *Board) Draw(upToHeight int) {
+func (board Board) Draw(upToHeight int) {
 	for y := upToHeight; y >= 1; y-- {
 		var line string
-		for x := 1; x < WIDTH-1; x++ {
-			if board[y][x] {
+		for x := 0; x < 7; x++ {
+			if board[y]&(1<<x) > 0 {
 				line += "#"
 			} else {
 				line += "."
@@ -48,143 +41,137 @@ func (board *Board) Draw(upToHeight int) {
 		fmt.Printf("|%v|\n", line)
 	}
 	fmt.Println("+-------+")
-
 }
 
 type Shape struct {
 	x       int
 	y       int
-	draw    func(board *Board, x int, y int) int
-	hide    func(board *Board, x int, y int)
-	collide func(board *Board, x int, y int, shiftX int, shiftY int) bool
+	draw    func(board Board, x int, y int) int
+	hide    func(board Board, x int, y int)
+	collide func(board Board, x int, y int, shiftX int, shiftY int) bool
 }
 
-var MinusShapeDraw = func(board *Board, x int, y int) int {
-	board[y][x] = true
-	board[y][x+1] = true
-	board[y][x+2] = true
-	board[y][x+3] = true
+var MinusShapeDraw = func(board Board, x int, y int) int {
+	board[y] |= 0b00001111 << x
 	return y
 }
 
-var MinusShapeHide = func(board *Board, x int, y int) {
-	board[y][x] = false
-	board[y][x+1] = false
-	board[y][x+2] = false
-	board[y][x+3] = false
+var MinusShapeHide = func(board Board, x int, y int) {
+	board[y] &= ^(0b00001111 << x)
 }
 
-var MinusCollide = func(board *Board, x int, y int, shiftX int, shiftY int) bool {
+var MinusCollide = func(board Board, x int, y int, shiftX int, shiftY int) bool {
 	x = x + shiftX
 	y = y + shiftY
-	return board[y][x] || board[y][x+1] || board[y][x+2] || board[y][x+3]
+	if x < 0 || x > 3 {
+		return true
+	}
+
+	return board[y]&(0b00001111<<x) > 0
 }
 
-var CrossShapeDraw = func(board *Board, x int, y int) int {
-	board[y][x+1] = true
-	board[y+1][x] = true
-	board[y+1][x+1] = true
-	board[y+1][x+2] = true
-	board[y+2][x+1] = true
+var CrossShapeDraw = func(board Board, x int, y int) int {
+	board[y] |= 0b00000010 << x
+	board[y+1] |= 0b00000111 << x
+	board[y+2] |= 0b00000010 << x
 	return y + 2
 }
 
-var CrossShapeHide = func(board *Board, x int, y int) {
-	board[y][x+1] = false
-	board[y+1][x] = false
-	board[y+1][x+1] = false
-	board[y+1][x+2] = false
-	board[y+2][x+1] = false
+var CrossShapeHide = func(board Board, x int, y int) {
+	board[y] &= ^(0b00000010 << x)
+	board[y+1] &= ^(0b00000111 << x)
+	board[y+2] &= ^(0b00000010 << x)
 }
 
-var CrossShapeCollide = func(board *Board, x int, y int, shiftX int, shiftY int) bool {
+var CrossShapeCollide = func(board Board, x int, y int, shiftX int, shiftY int) bool {
 	x = x + shiftX
 	y = y + shiftY
-	return board[y][x+1] || board[y+1][x] || board[y+1][x+1] || board[y+1][x+2] || board[y+2][x+1]
+	if x < 0 || x > 4 {
+		return true
+	}
+
+	return board[y]&(0b00000010<<x) > 0 || board[y+1]&(0b00000111<<x) > 0 || board[y+2]&(0b00000010<<x) > 0
 }
 
-var LShapeDraw = func(board *Board, x int, y int) int {
-	board[y][x] = true
-	board[y][x+1] = true
-	board[y][x+2] = true
-	board[y+1][x+2] = true
-	board[y+2][x+2] = true
+var LShapeDraw = func(board Board, x int, y int) int {
+	board[y] |= 0b00000111 << x
+	board[y+1] |= 0b00000100 << x
+	board[y+2] |= 0b00000100 << x
 	return y + 2
 }
 
-var LShapeHide = func(board *Board, x int, y int) {
-	board[y][x] = false
-	board[y][x+1] = false
-	board[y][x+2] = false
-	board[y+1][x+2] = false
-	board[y+2][x+2] = false
+var LShapeHide = func(board Board, x int, y int) {
+	board[y] &= ^(0b00000111 << x)
+	board[y+1] &= ^(0b00000100 << x)
+	board[y+2] &= ^(0b00000100 << x)
 }
 
-var LShapeCollide = func(board *Board, x int, y int, shiftX int, shiftY int) bool {
+var LShapeCollide = func(board Board, x int, y int, shiftX int, shiftY int) bool {
 	x = x + shiftX
 	y = y + shiftY
-	return board[y][x] || board[y][x+1] || board[y][x+2] || board[y+1][x+2] || board[y+2][x+2]
+	if x < 0 || x > 4 {
+		return true
+	}
+	return board[y]&(0b00000111<<x) > 0 || board[y+1]&(0b00000100<<x) > 0 || board[y+2]&(0b00000100<<x) > 0
 }
 
-var IShapeDraw = func(board *Board, x int, y int) int {
-	board[y][x] = true
-	board[y+1][x] = true
-	board[y+2][x] = true
-	board[y+3][x] = true
+var IShapeDraw = func(board Board, x int, y int) int {
+	board[y] |= 0b00000001 << x
+	board[y+1] |= 0b00000001 << x
+	board[y+2] |= 0b00000001 << x
+	board[y+3] |= 0b00000001 << x
 	return y + 3
 }
 
-var IShapeHide = func(board *Board, x int, y int) {
-	board[y][x] = false
-	board[y+1][x] = false
-	board[y+2][x] = false
-	board[y+3][x] = false
+var IShapeHide = func(board Board, x int, y int) {
+	board[y] &= ^(0b00000001 << x)
+	board[y+1] &= ^(0b00000001 << x)
+	board[y+2] &= ^(0b00000001 << x)
+	board[y+3] &= ^(0b00000001 << x)
 }
 
-var IShapeCollide = func(board *Board, x int, y int, shiftX int, shiftY int) bool {
+var IShapeCollide = func(board Board, x int, y int, shiftX int, shiftY int) bool {
 	x = x + shiftX
 	y = y + shiftY
-	return board[y][x] || board[y+1][x] || board[y+2][x] || board[y+3][x]
+	if x < 0 || x > 6 {
+		return true
+	}
+	return board[y]&(0b00000001<<x) > 0 || board[y+1]&(0b00000001<<x) > 0 || board[y+2]&(0b00000001<<x) > 0 || board[y+3]&(0b00000001<<x) > 0
 }
 
-var SquareShapeDraw = func(board *Board, x int, y int) int {
-	board[y][x] = true
-	board[y][x+1] = true
-	board[y+1][x] = true
-	board[y+1][x+1] = true
+var SquareShapeDraw = func(board Board, x int, y int) int {
+	board[y] |= 0b00000011 << x
+	board[y+1] |= 0b00000011 << x
 	return y + 1
 }
 
-var SquareShapeHide = func(board *Board, x int, y int) {
-	board[y][x] = false
-	board[y][x+1] = false
-	board[y+1][x] = false
-	board[y+1][x+1] = false
+var SquareShapeHide = func(board Board, x int, y int) {
+	board[y] &= ^(0b00000011 << x)
+	board[y+1] &= ^(0b00000011 << x)
 }
 
-var SquareShapeCollide = func(board *Board, x int, y int, shiftX int, shiftY int) bool {
+var SquareShapeCollide = func(board Board, x int, y int, shiftX int, shiftY int) bool {
 	x = x + shiftX
 	y = y + shiftY
-	return board[y][x] || board[y][x+1] || board[y+1][x] || board[y+1][x+1]
+	if x < 0 || x > 5 {
+		return true
+	}
+	return board[y]&(0b00000011<<x) > 0 || board[y+1]&(0b00000011<<x) > 0
 }
 
 var shapeCounter int = 0
 
-func AppearNewShape(currentHeight int) (newShape *Shape) {
-	switch shapeCounter % 5 {
-	case 0:
-		newShape = &Shape{x: 3, y: currentHeight + 3, draw: MinusShapeDraw, collide: MinusCollide, hide: MinusShapeHide}
-	case 1:
-		newShape = &Shape{x: 3, y: currentHeight + 3, draw: CrossShapeDraw, collide: CrossShapeCollide, hide: CrossShapeHide}
-	case 2:
-		newShape = &Shape{x: 3, y: currentHeight + 3, draw: LShapeDraw, collide: LShapeCollide, hide: LShapeHide}
-	case 3:
-		newShape = &Shape{x: 3, y: currentHeight + 3, draw: IShapeDraw, collide: IShapeCollide, hide: IShapeHide}
-	case 4:
-		newShape = &Shape{x: 3, y: currentHeight + 3, draw: SquareShapeDraw, collide: SquareShapeCollide, hide: SquareShapeHide}
-	}
+var shapes = [5]Shape{
+	{x: 0, y: 0, draw: MinusShapeDraw, collide: MinusCollide, hide: MinusShapeHide},
+	{x: 0, y: 0, draw: CrossShapeDraw, collide: CrossShapeCollide, hide: CrossShapeHide},
+	{x: 0, y: 0, draw: LShapeDraw, collide: LShapeCollide, hide: LShapeHide},
+	{x: 0, y: 0, draw: IShapeDraw, collide: IShapeCollide, hide: IShapeHide},
+	{x: 0, y: 0, draw: SquareShapeDraw, collide: SquareShapeCollide, hide: SquareShapeHide}}
 
-	shapeCounter++
+func AppearNewShape(currentHeight int) (newShape *Shape) {
+	newShape = &shapes[shapeCounter%5]
+	newShape.x = 2
+	newShape.y = currentHeight + 3
 	return newShape
 }
 
@@ -203,7 +190,7 @@ func ParseInput() (jet []int) {
 	return jet
 }
 
-func DrawStep(board *Board, currentShape *Shape, currentTime int, maxHeight int) {
+func DrawStep(board Board, currentShape *Shape, currentTime int, maxHeight int) {
 	currentShape.draw(board, currentShape.x, currentShape.y)
 	fmt.Println("time:", currentTime)
 	board.Draw(maxHeight)
@@ -212,26 +199,28 @@ func DrawStep(board *Board, currentShape *Shape, currentTime int, maxHeight int)
 
 const N = 2022
 
-func Solve() (int, int) {
+// const N = 1_000_000_000_000
 
+func Solve() (int, int) {
 	var jet []int = ParseInput()
 	var jetLen int = len(jet)
 
-	var board *Board = NewBoard()
+	var board Board = NewBoard()
 
 	var currentTime int = 0
 	var currentHeight int = 1
 
-	var jetShift int
 	var IsFalling bool = true
 	var currentShape *Shape
 
 	for step := 0; step < N; step++ {
 		currentShape = AppearNewShape(currentHeight)
+
+		shapeCounter++
 		IsFalling = true
 
 		for IsFalling {
-			jetShift = jet[currentTime%jetLen]
+			var jetShift int = jet[currentTime%jetLen]
 			if !currentShape.collide(board, currentShape.x, currentShape.y, jetShift, 0) {
 				currentShape.x += jetShift
 			}
@@ -244,6 +233,7 @@ func Solve() (int, int) {
 			}
 			currentTime++
 		}
+
 	}
 
 	// fmt.Println()
