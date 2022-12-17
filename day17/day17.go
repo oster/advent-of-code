@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-//go:embed input.txt
+//go:embed sample.txt
 var input string
 
 func max(a int, b int) int {
@@ -15,8 +15,8 @@ func max(a int, b int) int {
 	return b
 }
 
-// const HEIGHT = 2_000_000_000_000 // 1_514_285_714_288
-const HEIGHT = 4_000
+// const HEIGHT = 2_000_000_000_000
+const HEIGHT = 1_000_000_000
 
 type Board []byte
 
@@ -197,6 +197,20 @@ func DrawStep(board Board, currentShape *Shape, currentTime int, maxHeight int) 
 	currentShape.hide(board, currentShape.x, currentShape.y)
 }
 
+func PrintBoard(board Board) {
+
+	for i := 0; i < HEIGHT; i++ {
+		fmt.Printf("%c", board[i])
+	}
+	fmt.Println()
+
+}
+
+// var patternCounter int = 0
+// var patternStart int = 0
+// var patternStop int = 0
+// var skipped int = 0
+
 const N = 2022
 
 // const N = 1_000_000_000_000
@@ -213,14 +227,23 @@ func Solve() (int, int) {
 	var IsFalling bool = true
 	var currentShape *Shape
 
-	for step := 0; step < N; step++ {
-		currentShape = AppearNewShape(currentHeight)
+	var lastXOfShapeWhenInSync int = 0
+	var lastHeight int = 0
+	var patternHeight int = 0
+	var patternShapeCount int = 0
+	var skippingPatternCount int = 0
+	var lookingForPattern bool = true
 
+	for shapeCounter < N {
+		currentShape = AppearNewShape(currentHeight)
 		shapeCounter++
+
 		IsFalling = true
 
 		for IsFalling {
 			var jetShift int = jet[currentTime%jetLen]
+			currentTime++
+
 			if !currentShape.collide(board, currentShape.x, currentShape.y, jetShift, 0) {
 				currentShape.x += jetShift
 			}
@@ -229,18 +252,55 @@ func Solve() (int, int) {
 				currentShape.y--
 			} else {
 				IsFalling = false
-				currentHeight = max(currentShape.draw(board, currentShape.x, currentShape.y)+1, currentHeight)
-			}
-			currentTime++
-		}
+				lastY := currentShape.draw(board, currentShape.x, currentShape.y)
 
+				// if lookingForPattern && shapeCounter%5 == 0 && (currentTime-2)%jetLen == 0 {
+				if lookingForPattern && shapeCounter%5 == 0 && (currentTime-2)%jetLen == 0 {
+
+					if lastXOfShapeWhenInSync == currentShape.x {
+						// synchronization point detected
+						patternHeight = currentHeight - lastHeight
+						patternShapeCount = shapeCounter - patternShapeCount
+
+						fmt.Println("marker detected!:")
+						fmt.Println("  current height:", currentHeight)
+						fmt.Println("  pattern height:", patternHeight, "pattern shape count:", patternShapeCount, "shape count:", shapeCounter)
+						remainingShapeToGenerateCount := (N - shapeCounter)
+						skippingPatternCount = (remainingShapeToGenerateCount / patternShapeCount)
+						stillToPlay := (remainingShapeToGenerateCount % patternShapeCount)
+						fmt.Println("  we will skip ", skippingPatternCount, "patterns")
+						shapeCounter = N - stillToPlay
+						lookingForPattern = false
+
+						// fmt.Println()
+						// board.Draw(currentHeight + 6)
+						// fmt.Println()
+
+					} else {
+						lastXOfShapeWhenInSync = currentShape.x
+						lastHeight = currentHeight
+						patternShapeCount = shapeCounter
+					}
+					//fmt.Println(currentHeight, shapeCounter%5, (currentTime-1)%jetLen, currentTime, currentShape.x)
+				}
+
+				currentHeight = max(lastY+1, currentHeight)
+				// fmt.Println(currentHeight)
+			}
+		}
 	}
 
-	// fmt.Println()
+	fmt.Println("skippingPatternCount:", skippingPatternCount, "patternHeight:", patternHeight)
+
+	currentHeight += skippingPatternCount * patternHeight
+
 	// fmt.Println()
 	// board.Draw(currentHeight + 6)
+	// board.Draw(320)
+	// fmt.Println()
 
-	part1 := currentHeight - 1 // 3068, 3071 /
+	part1 := currentHeight - 1 // 3068, 3071 / 1514285714288,
+
 	part2 := 0
 	return part1, part2
 }
