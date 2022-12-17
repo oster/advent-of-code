@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-//go:embed sample.txt
+//go:embed input.txt
 var input string
 
 func max(a int, b int) int {
@@ -15,15 +15,13 @@ func max(a int, b int) int {
 	return b
 }
 
-// const HEIGHT = 2_000_000_000_000
-const HEIGHT = 1_000_000_000
-
 type Board []byte
+
+const HEIGHT = 6_000
 
 func NewBoard() (board Board) {
 	board = make([]byte, HEIGHT)
 	board[0] = 0b11111111
-	//fmt.Println("memory allocation done")
 	return board
 }
 
@@ -197,28 +195,13 @@ func DrawStep(board Board, currentShape *Shape, currentTime int, maxHeight int) 
 	currentShape.hide(board, currentShape.x, currentShape.y)
 }
 
-func PrintBoard(board Board) {
-
-	for i := 0; i < HEIGHT; i++ {
-		fmt.Printf("%c", board[i])
-	}
-	fmt.Println()
-
+type IntCouple struct {
+	a int
+	b int
 }
 
-// var patternCounter int = 0
-// var patternStart int = 0
-// var patternStop int = 0
-// var skipped int = 0
-
-const N = 2022
-
-// const N = 1_000_000_000_000
-
-func Solve() (int, int) {
-	var jet []int = ParseInput()
+func FindSolution(targetRockCount int, jet []int) int {
 	var jetLen int = len(jet)
-
 	var board Board = NewBoard()
 
 	var currentTime int = 0
@@ -227,14 +210,13 @@ func Solve() (int, int) {
 	var IsFalling bool = true
 	var currentShape *Shape
 
-	var lastXOfShapeWhenInSync int = 0
-	var lastHeight int = 0
 	var patternHeight int = 0
-	var patternShapeCount int = 0
 	var skippingPatternCount int = 0
 	var lookingForPattern bool = true
 
-	for shapeCounter < N {
+	var memoire map[IntCouple]IntCouple = make(map[IntCouple]IntCouple)
+
+	for shapeCounter < targetRockCount {
 		currentShape = AppearNewShape(currentHeight)
 		shapeCounter++
 
@@ -254,53 +236,42 @@ func Solve() (int, int) {
 				IsFalling = false
 				lastY := currentShape.draw(board, currentShape.x, currentShape.y)
 
-				// if lookingForPattern && shapeCounter%5 == 0 && (currentTime-2)%jetLen == 0 {
-				if lookingForPattern && shapeCounter%5 == 0 && (currentTime-2)%jetLen == 0 {
-
-					if lastXOfShapeWhenInSync == currentShape.x {
+				if lookingForPattern && shapeCounter%5 == 0 {
+					data, ok := memoire[IntCouple{currentTime % jetLen, currentShape.x}]
+					if ok {
 						// synchronization point detected
-						patternHeight = currentHeight - lastHeight
-						patternShapeCount = shapeCounter - patternShapeCount
+						patternHeight = currentHeight - data.a     //lastHeight
+						patternShapeCount := shapeCounter - data.b //patternShapeCount
 
-						fmt.Println("marker detected!:")
-						fmt.Println("  current height:", currentHeight)
-						fmt.Println("  pattern height:", patternHeight, "pattern shape count:", patternShapeCount, "shape count:", shapeCounter)
-						remainingShapeToGenerateCount := (N - shapeCounter)
+						// fmt.Println("marker detected!:")
+						// fmt.Println("  current height:", currentHeight)
+						// fmt.Println("  pattern height:", patternHeight, "pattern shape count:", patternShapeCount, "shape count:", shapeCounter)
+						remainingShapeToGenerateCount := (targetRockCount - shapeCounter)
 						skippingPatternCount = (remainingShapeToGenerateCount / patternShapeCount)
 						stillToPlay := (remainingShapeToGenerateCount % patternShapeCount)
-						fmt.Println("  we will skip ", skippingPatternCount, "patterns")
-						shapeCounter = N - stillToPlay
+						// fmt.Println("  we will skip ", skippingPatternCount, "patterns")
+						shapeCounter = targetRockCount - stillToPlay
 						lookingForPattern = false
-
-						// fmt.Println()
-						// board.Draw(currentHeight + 6)
-						// fmt.Println()
-
 					} else {
-						lastXOfShapeWhenInSync = currentShape.x
-						lastHeight = currentHeight
-						patternShapeCount = shapeCounter
+						memoire[IntCouple{currentTime % jetLen, currentShape.x}] = IntCouple{a: currentHeight, b: shapeCounter}
 					}
-					//fmt.Println(currentHeight, shapeCounter%5, (currentTime-1)%jetLen, currentTime, currentShape.x)
 				}
 
 				currentHeight = max(lastY+1, currentHeight)
-				// fmt.Println(currentHeight)
 			}
 		}
 	}
 
-	fmt.Println("skippingPatternCount:", skippingPatternCount, "patternHeight:", patternHeight)
-
 	currentHeight += skippingPatternCount * patternHeight
 
-	// fmt.Println()
-	// board.Draw(currentHeight + 6)
-	// board.Draw(320)
-	// fmt.Println()
+	return currentHeight - 1
+}
 
-	part1 := currentHeight - 1 // 3068, 3071 / 1514285714288,
+func Solve() (int, int) {
+	var jet []int = ParseInput()
 
-	part2 := 0
+	part1 := FindSolution(2022, jet)              // 3068, 3071
+	part2 := FindSolution(1_000_000_000_000, jet) // 1514285714288, 1523615160362
+
 	return part1, part2
 }
