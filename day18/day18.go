@@ -34,7 +34,7 @@ func min(a int, b int) int {
 }
 
 func ParseInput() Cubes {
-	var scanAres Cubes = Cubes{}
+	var scanarea Cubes = Cubes{}
 
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	scanner.Split(bufio.ScanLines)
@@ -45,31 +45,31 @@ func ParseInput() Cubes {
 		y, _ := strconv.Atoi(fields[1])
 		z, _ := strconv.Atoi(fields[2])
 
-		scanAres[Cube{x, y, z}] = true
+		scanarea[Cube{x, y, z}] = true
 	}
-	return scanAres
+	return scanarea
 }
 
-func Part1(scanAres Cubes) int {
+func Part1(scanarea Cubes) int {
 	visibleFaces := 0
 
-	for cube := range scanAres {
-		if _, ok := scanAres[Cube{cube.x + 1, cube.y, cube.z}]; !ok {
+	for cube := range scanarea {
+		if _, ok := scanarea[Cube{cube.x + 1, cube.y, cube.z}]; !ok {
 			visibleFaces++
 		}
-		if _, ok := scanAres[Cube{cube.x, cube.y + 1, cube.z}]; !ok {
+		if _, ok := scanarea[Cube{cube.x, cube.y + 1, cube.z}]; !ok {
 			visibleFaces++
 		}
-		if _, ok := scanAres[Cube{cube.x, cube.y, cube.z + 1}]; !ok {
+		if _, ok := scanarea[Cube{cube.x, cube.y, cube.z + 1}]; !ok {
 			visibleFaces++
 		}
-		if _, ok := scanAres[Cube{cube.x - 1, cube.y, cube.z}]; !ok {
+		if _, ok := scanarea[Cube{cube.x - 1, cube.y, cube.z}]; !ok {
 			visibleFaces++
 		}
-		if _, ok := scanAres[Cube{cube.x, cube.y - 1, cube.z}]; !ok {
+		if _, ok := scanarea[Cube{cube.x, cube.y - 1, cube.z}]; !ok {
 			visibleFaces++
 		}
-		if _, ok := scanAres[Cube{cube.x, cube.y, cube.z - 1}]; !ok {
+		if _, ok := scanarea[Cube{cube.x, cube.y, cube.z - 1}]; !ok {
 			visibleFaces++
 		}
 	}
@@ -84,30 +84,30 @@ var maxY = math.MinInt
 var minZ = math.MaxInt
 var maxZ = math.MinInt
 
-func flood(scanAres Cubes, startX int, startY int, startZ int) {
+func flood(scanarea Cubes, startX int, startY int, startZ int) {
 	if startX < minX-1 || startX > maxX+1 || startY < minY-1 || startY > maxY+1 || startZ < minZ-1 || startZ > maxZ+1 {
 		return
 	}
 
-	if _, ok := scanAres[Cube{startX, startY, startZ}]; ok {
+	if _, ok := scanarea[Cube{startX, startY, startZ}]; ok {
 		// either there is a cube, either we already visited that place, stop flooding
 		return
 	}
 
 	// mark as visited
-	scanAres[Cube{startX, startY, startZ}] = false
+	scanarea[Cube{startX, startY, startZ}] = false
 
 	// continue flooding
-	flood(scanAres, startX+1, startY, startZ)
-	flood(scanAres, startX, startY+1, startZ)
-	flood(scanAres, startX, startY, startZ+1)
-	flood(scanAres, startX-1, startY, startZ)
-	flood(scanAres, startX, startY-1, startZ)
-	flood(scanAres, startX, startY, startZ-1)
+	flood(scanarea, startX+1, startY, startZ)
+	flood(scanarea, startX, startY+1, startZ)
+	flood(scanarea, startX, startY, startZ+1)
+	flood(scanarea, startX-1, startY, startZ)
+	flood(scanarea, startX, startY-1, startZ)
+	flood(scanarea, startX, startY, startZ-1)
 }
 
-func Part2(scanAres Cubes) int {
-	for cube := range scanAres {
+func Part2(scanarea Cubes) int {
+	for cube := range scanarea {
 		minX = min(cube.x, minX)
 		maxX = max(cube.x, maxX)
 		minY = min(cube.y, minY)
@@ -116,30 +116,30 @@ func Part2(scanAres Cubes) int {
 		maxZ = max(cube.z, maxZ)
 	}
 
-	flood(scanAres, maxX+1, maxY+1, maxZ+1)
+	flood(scanarea, maxX+1, maxY+1, maxZ+1)
 
 	exteriorFaces := 0
-	for cube, isCube := range scanAres {
+	for cube, isCube := range scanarea {
 		if !isCube {
 			continue
 		}
 
-		if val, ok := scanAres[Cube{cube.x + 1, cube.y, cube.z}]; ok && !val {
+		if val, ok := scanarea[Cube{cube.x + 1, cube.y, cube.z}]; ok && !val {
 			exteriorFaces++
 		}
-		if val, ok := scanAres[Cube{cube.x, cube.y + 1, cube.z}]; ok && !val {
+		if val, ok := scanarea[Cube{cube.x, cube.y + 1, cube.z}]; ok && !val {
 			exteriorFaces++
 		}
-		if val, ok := scanAres[Cube{cube.x, cube.y, cube.z + 1}]; ok && !val {
+		if val, ok := scanarea[Cube{cube.x, cube.y, cube.z + 1}]; ok && !val {
 			exteriorFaces++
 		}
-		if val, ok := scanAres[Cube{cube.x - 1, cube.y, cube.z}]; ok && !val {
+		if val, ok := scanarea[Cube{cube.x - 1, cube.y, cube.z}]; ok && !val {
 			exteriorFaces++
 		}
-		if val, ok := scanAres[Cube{cube.x, cube.y - 1, cube.z}]; ok && !val {
+		if val, ok := scanarea[Cube{cube.x, cube.y - 1, cube.z}]; ok && !val {
 			exteriorFaces++
 		}
-		if val, ok := scanAres[Cube{cube.x, cube.y, cube.z - 1}]; ok && !val {
+		if val, ok := scanarea[Cube{cube.x, cube.y, cube.z - 1}]; ok && !val {
 			exteriorFaces++
 		}
 	}
@@ -147,8 +147,8 @@ func Part2(scanAres Cubes) int {
 }
 
 func Solve() (int, int) {
-	var scanAres Cubes = ParseInput()
-	part1 := Part1(scanAres) // 64, 3494
-	part2 := Part2(scanAres) // 58, 2062
+	var scanarea Cubes = ParseInput()
+	part1 := Part1(scanarea) // 64, 3494
+	part2 := Part2(scanarea) // 58, 2062
 	return part1, part2
 }
