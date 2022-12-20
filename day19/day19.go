@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed sample.txt
+//go:embed input.txt
 var input string
 
 type Cost struct {
@@ -66,6 +66,9 @@ func ParseInput() (blueprints []BluePrint) {
 var maxGeode int
 
 func log(time int, state State, message string) {
+	if time < 22 {
+		return
+	}
 	padding := ""
 	for i := 0; i < time; i++ {
 		padding += " "
@@ -87,11 +90,13 @@ func backtrackSearch(time int, state State, bp BluePrint, maxTime int, previousS
 	newState.obsidian += state.obsidianRobot
 	newState.geode += state.geodeRobot
 
-	if newState.geode >= maxGeode {
+	if newState.geode > maxGeode {
 		maxGeode = newState.geode
 		// fmt.Println(maxGeode, "geode robot:", newState.geodeRobot)
 		// fmt.Printf("%2d [ore:%2d clay:%2d obsidian:%2d geode:%2d] [oreR:%2d clayR:%2d obsidianR:%2d geodeR:%2d]\n", time, newState.ore, newState.clay, newState.obsidian, newState.geode, newState.oreRobot, newState.clayRobot, newState.obsidianRobot, newState.geodeRobot)
 	}
+
+	// log(time, newState, "...")
 
 	// for all actions
 	if state.obsidian >= bp.geodeRobotCost.obsidian && state.ore >= bp.geodeRobotCost.ore {
@@ -108,7 +113,7 @@ func backtrackSearch(time int, state State, bp BluePrint, maxTime int, previousS
 	}
 
 	if state.clay >= bp.obsidianRobotCost.clay && state.ore >= bp.obsidianRobotCost.ore {
-		if !(previousState.clay >= bp.obsidianRobotCost.clay && previousState.ore >= bp.obsidianRobotCost.ore && state.clay == previousState.clay && state.ore == previousState.ore) {
+		if state.obsidianRobot <= 14 && !(previousState.clay >= bp.obsidianRobotCost.clay && previousState.ore >= bp.obsidianRobotCost.ore && (state.clay != previousState.clay+previousState.clayRobot || state.clay != previousState.clay) && state.ore == previousState.ore) {
 			// or, we could have bought it earlier... skip
 
 			// buy an obsidian robot
@@ -124,7 +129,7 @@ func backtrackSearch(time int, state State, bp BluePrint, maxTime int, previousS
 		}
 	}
 
-	if state.ore >= bp.clayRobotCost.ore {
+	if state.clay <= 2*bp.obsidianRobotCost.clay && state.ore >= bp.clayRobotCost.ore {
 		// if !(previousState.ore >= bp.clayRobotCost.ore && previousState.ore >= state.ore) {
 		// or, we could have bought it earlier... skip
 
@@ -139,8 +144,7 @@ func backtrackSearch(time int, state State, bp BluePrint, maxTime int, previousS
 		// }
 	}
 
-	if state.ore >= bp.oreRobotCost.ore {
-		// if !(previousState.ore >= bp.oreRobotCost.ore) {
+	if state.oreRobot <= 3 && state.ore >= bp.oreRobotCost.ore {
 		// or, we could have bought it earlier... skip
 
 		// buy a ore robot
@@ -159,7 +163,7 @@ func backtrackSearch(time int, state State, bp BluePrint, maxTime int, previousS
 		return
 	}
 
-	// if state.clay >= bp.obsidianRobotCost.clay {
+	// if state.clay > bp.obsidianRobotCost.clay {
 	// 	// useless to not use them
 	// 	return
 	// }
