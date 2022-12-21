@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	_ "embed"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -18,20 +19,126 @@ type Node struct {
 	monkey2 *Node
 }
 
-func (current *Node) eval() int {
+func (current *Node) Eval() int {
 	switch current.op {
 	case 'v':
 		return current.number
+	case 'm':
+		return current.number
 	case '+':
-		return current.monkey1.eval() + current.monkey2.eval()
+		return current.monkey1.Eval() + current.monkey2.Eval()
 	case '-':
-		return current.monkey1.eval() - current.monkey2.eval()
+		return current.monkey1.Eval() - current.monkey2.Eval()
 	case '*':
-		return current.monkey1.eval() * current.monkey2.eval()
+		return current.monkey1.Eval() * current.monkey2.Eval()
 	case '/':
-		return current.monkey1.eval() / current.monkey2.eval()
+		a := current.monkey1.Eval()
+		b := current.monkey2.Eval()
+		if a%b != 0 {
+			panic("gloups")
+		}
+		return a / b
+	case '=':
+		return current.monkey1.Eval() - current.monkey2.Eval()
 	}
 	panic("invalid node")
+}
+
+func (current *Node) Reduce() *Node {
+	if current.name == "humn" { // we do not reduce this not according to Part 2
+		return current
+	}
+
+	if current.op == 'v' {
+		return current
+	}
+
+	current.monkey1 = current.monkey1.Reduce()
+	current.monkey2 = current.monkey2.Reduce()
+
+	if current.op == '=' {
+		return current
+	}
+
+	if current.monkey1.op == 'v' && current.monkey2.op == 'v' {
+		switch current.op {
+		case '+':
+			current.number = current.monkey1.number + current.monkey2.number
+		case '-':
+			current.number = current.monkey1.number - current.monkey2.number
+		case '*':
+			current.number = current.monkey1.number * current.monkey2.number
+		case '/':
+			current.number = current.monkey1.number / current.monkey2.number
+			if current.number*current.monkey2.number != current.monkey1.number {
+				panic("gloups: " + fmt.Sprintf("%v", current.monkey1.number) + " is not divisible by " + fmt.Sprintf("%v", current.monkey2.number))
+			}
+
+		case '=':
+		}
+		current.op = 'v'
+	}
+
+	return current
+	// panic("invalid node")
+}
+
+func (current *Node) Solve(value int) int {
+
+	if current.op == 'm' {
+		return value
+	}
+
+	if current.monkey1.op == 'v' && current.monkey2.op != 'v' {
+		switch current.op {
+		case '+':
+			return current.monkey2.Solve(value - current.monkey1.number)
+		case '-':
+			return current.monkey2.Solve(-(value - current.monkey1.number))
+		case '*':
+			if value%current.monkey1.number != 0 {
+				panic("gloups: " + fmt.Sprintf("%v", value) + " is not divisible by " + fmt.Sprintf("%v", current.monkey1.number))
+			}
+			return current.monkey2.Solve(value / current.monkey1.number)
+		case '/':
+			return current.monkey2.Solve(value * current.monkey1.number)
+		case '=', 'm':
+			panic("this type of node should not be present in the expression to solve")
+		}
+	}
+
+	if current.monkey1.op != 'v' && current.monkey2.op == 'v' {
+		switch current.op {
+		case '+':
+			return current.monkey1.Solve(value - current.monkey2.number)
+		case '-':
+			return current.monkey1.Solve(value + current.monkey2.number)
+		case '*':
+			if value%current.monkey2.number != 0 {
+				panic("gloups: " + fmt.Sprintf("%v", value) + " is not divisible by " + fmt.Sprintf("%v", current.monkey2.number))
+			}
+			return current.monkey1.Solve(value / current.monkey2.number)
+		case '/':
+			return current.monkey1.Solve(value * current.monkey2.number)
+		case 'm':
+			return value // we found the variable, so we know the result ;)
+		case '=':
+			panic("this type of node should not be present in the expression to solve")
+		}
+	}
+
+	panic("should not happen")
+}
+
+func (current *Node) ToString() string {
+	if current.op == 'v' {
+		return fmt.Sprintf("%v", current.number)
+	}
+
+	if current.op == 'm' {
+		return "?"
+	}
+	return fmt.Sprintf("(%s %c %s)", current.monkey1.ToString(), current.op, current.monkey2.ToString())
 }
 
 var nodes map[string]*Node
@@ -95,7 +202,18 @@ func Part2() int {
 func Solve() (int, int) {
 	ParseInput()
 
-	part1 := nodes["root"].eval()
+	// fmt.Println(nodes["root"].ToString())
+	part1 := nodes["root"].Eval() // 152, 276156919469632
+
 	part2 := 0
+	nodes["root"].op = '='
+	nodes["humn"].op = 'm'
+
+	root := nodes["root"]
+	root.Reduce() // left node will contains the simplified expression, right node the expected result
+	// fmt.Println(nodes["root"].ToString())
+
+	part2 = root.monkey1.Solve(root.monkey2.Eval()) // 301, 3441198826073
+
 	return part1, part2
 }
