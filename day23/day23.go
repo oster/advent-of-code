@@ -168,8 +168,94 @@ func CountEmptyTiles(grid map[Pos]bool) (emptyTilesCount int) {
 // 	return emptyTilesCount
 // }
 
+func PlayRound(round int, elves []*Elf, elvesPositions map[Pos]bool) (newElvesPositions map[Pos]bool, howManyElvesMoves int) {
+	// first half of round
+	var proposals map[Pos]int = make(map[Pos]int)
+
+	for _, elf := range elves {
+		elfPos := elf.current
+
+		elvesInTheNeighborhood := 0
+		for _, direction := range directions {
+			if _, ok := elvesPositions[neighborPos(elfPos, direction)]; ok {
+				elvesInTheNeighborhood++
+			}
+		}
+
+		if elvesInTheNeighborhood == 0 {
+			// don't move during that round
+			elf.next = elf.current
+			// fmt.Printf("%+v will not move (stay at %+v)\n", elf.current, elf.next)
+		} else {
+			// mayMove := false
+
+			for idxQuadrantIndex := 0; idxQuadrantIndex < 4; idxQuadrantIndex++ {
+				quadrantIndex := quadrantIndexes[(round+idxQuadrantIndex)%4]
+				// fmt.Printf("elves will consider %s direction (%d) first\n", GetDirectionAsString(quadrantIndex), quadrantIndex)
+
+				elvesInTheQuadrant := 0
+				for quadrantShit := -1; quadrantShit <= 1; quadrantShit++ {
+					directionIndex := (quadrantIndex + quadrantShit + 8) % 8
+					// fmt.Println("directionIndex:", directionIndex)
+					direction := directions[directionIndex]
+					nPos := neighborPos(elfPos, direction)
+					// fmt.Printf("  checking %s (at %+v) of %+v\n", GetDirectionAsString(directionIndex), nPos, elf.current)
+					if _, ok := elvesPositions[nPos]; ok {
+						elvesInTheQuadrant++
+					}
+				}
+				// fmt.Printf("there are %d elves in the %s quadrant of %+v\n", elvesInTheQuadrant, GetDirectionAsString(quadrantIndex), elf.current)
+				if elvesInTheQuadrant == 0 {
+					// mayMove = true
+					elf.next = neighborPos(elfPos, directions[quadrantIndex])
+					// fmt.Printf("%+v proposed to move to %s (%+v)\n", elf.current, GetDirectionAsString(quadrantIndex), elf.next)
+					// store proposal
+					_, ok := proposals[elf.next]
+					if !ok {
+						proposals[elf.next] = 1
+					} else {
+						proposals[elf.next]++
+					}
+					break
+				} else {
+					// fmt.Println("so not move")
+					elf.next = elf.current
+				}
+			}
+			// if !mayMove {
+			// 	fmt.Printf("%+v will not move\n", elf.current)
+			// }
+		}
+	}
+
+	// fmt.Printf("proposals: %+v\n", proposals)
+	// PrintGrid(elvesPositions)
+
+	// second half of the round
+	for _, elf := range elves {
+		// fmt.Printf("%+v ... proposal count=%d\n", *elf, proposals[elf.next])
+		if proposals[elf.next] == 1 {
+			// effectively move
+			// fmt.Printf("%+v will move to %+v\n", elf.current, elf.next)
+			delete(elvesPositions, elf.current)
+			elf.current = elf.next
+			elvesPositions[elf.current] = true
+			howManyElvesMoves++
+		}
+	}
+
+	// fmt.Printf("== End Round %d ==\n", round+1)
+	// PrintGrid(elvesPositions)
+	// fmt.Println("empty tiles: ", CountEmptyTiles(elvesPositions))
+
+	return elvesPositions, howManyElvesMoves
+}
+
+var quadrantIndexes [4]int = [4]int{0, 4, 6, 2} // {N, S, W, E}
+
 func Part1(maxRound int, elvesPositions map[Pos]bool) int {
 	var elves []*Elf = make([]*Elf, 0)
+
 	for elfPos := range elvesPositions {
 		elves = append(elves, &Elf{current: elfPos})
 	}
@@ -177,86 +263,8 @@ func Part1(maxRound int, elvesPositions map[Pos]bool) int {
 	// fmt.Printf("== Initial State ==\n")
 	// PrintGrid(elvesPositions)
 
-	var quadrantIndexes [4]int = [4]int{0, 4, 6, 2} // {N, S, W, E}
 	for round := 0; round < maxRound; round++ {
-
-		// first half of round
-		var proposals map[Pos]int = make(map[Pos]int)
-
-		for _, elf := range elves {
-			elfPos := elf.current
-
-			elvesInTheNeighborhood := 0
-			for _, direction := range directions {
-				if _, ok := elvesPositions[neighborPos(elfPos, direction)]; ok {
-					elvesInTheNeighborhood++
-				}
-			}
-
-			if elvesInTheNeighborhood == 0 {
-				// don't move during that round
-				elf.next = elf.current
-				// fmt.Printf("%+v will not move (stay at %+v)\n", elf.current, elf.next)
-			} else {
-				// mayMove := false
-
-				for idxQuadrantIndex := 0; idxQuadrantIndex < 4; idxQuadrantIndex++ {
-					quadrantIndex := quadrantIndexes[(round+idxQuadrantIndex)%4]
-					// fmt.Printf("elves will consider %s direction (%d) first\n", GetDirectionAsString(quadrantIndex), quadrantIndex)
-
-					elvesInTheQuadrant := 0
-					for quadrantShit := -1; quadrantShit <= 1; quadrantShit++ {
-						directionIndex := (quadrantIndex + quadrantShit + 8) % 8
-						// fmt.Println("directionIndex:", directionIndex)
-						direction := directions[directionIndex]
-						nPos := neighborPos(elfPos, direction)
-						// fmt.Printf("  checking %s (at %+v) of %+v\n", GetDirectionAsString(directionIndex), nPos, elf.current)
-						if _, ok := elvesPositions[nPos]; ok {
-							elvesInTheQuadrant++
-						}
-					}
-					// fmt.Printf("there are %d elves in the %s quadrant of %+v\n", elvesInTheQuadrant, GetDirectionAsString(quadrantIndex), elf.current)
-					if elvesInTheQuadrant == 0 {
-						// mayMove = true
-						elf.next = neighborPos(elfPos, directions[quadrantIndex])
-						// fmt.Printf("%+v proposed to move to %s (%+v)\n", elf.current, GetDirectionAsString(quadrantIndex), elf.next)
-						// store proposal
-						_, ok := proposals[elf.next]
-						if !ok {
-							proposals[elf.next] = 1
-						} else {
-							proposals[elf.next]++
-						}
-						break
-					} else {
-						// fmt.Println("so not move")
-						elf.next = elf.current
-					}
-				}
-				// if !mayMove {
-				// 	fmt.Printf("%+v will not move\n", elf.current)
-				// }
-			}
-		}
-
-		// fmt.Printf("proposals: %+v\n", proposals)
-		// PrintGrid(elvesPositions)
-
-		// second half of the round
-		for _, elf := range elves {
-			// fmt.Printf("%+v ... proposal count=%d\n", *elf, proposals[elf.next])
-			if proposals[elf.next] == 1 {
-				// effectively move
-				// fmt.Printf("%+v will move to %+v\n", elf.current, elf.next)
-				delete(elvesPositions, elf.current)
-				elf.current = elf.next
-				elvesPositions[elf.current] = true
-			}
-		}
-
-		// fmt.Printf("== End Round %d ==\n", round+1)
-		// PrintGrid(elvesPositions)
-		// fmt.Println("empty tiles: ", CountEmptyTiles(elvesPositions))
+		PlayRound(round, elves, elvesPositions)
 	}
 
 	// fmt.Printf("== Final Round %d ==\n", maxRound)
@@ -266,17 +274,35 @@ func Part1(maxRound int, elvesPositions map[Pos]bool) int {
 	return CountEmptyTiles(elvesPositions)
 }
 
-func Part2() int {
-	return 0
+func Part2(elvesPositions map[Pos]bool) int {
+	var elves []*Elf = make([]*Elf, 0)
+
+	for elfPos := range elvesPositions {
+		elves = append(elves, &Elf{current: elfPos})
+	}
+
+	round := 0
+	howManyElvesMoves := len(elves)
+	for howManyElvesMoves > 0 {
+		elvesPositions, howManyElvesMoves = PlayRound(round, elves, elvesPositions)
+		round++
+	}
+
+	return round
 }
 
 func Solve() (int, int) {
+	var originalElvesPositions map[Pos]bool = make(map[Pos]bool)
+	originalElvesPositions = ParseInput()
+
+	// make a copy for Part 2
 	var elvesPositions map[Pos]bool = make(map[Pos]bool)
-	elvesPositions = ParseInput()
+	for k, v := range originalElvesPositions {
+		elvesPositions[k] = v
+	}
 
-	part1 := Part1(10, elvesPositions) // 110, 3788
+	part1 := Part1(10, elvesPositions)     // 110, 3788
+	part2 := Part2(originalElvesPositions) // 20, 921
 
-	// part1 := 0
-	part2 := 0
 	return part1, part2
 }
