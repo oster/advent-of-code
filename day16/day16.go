@@ -4,6 +4,7 @@ import (
 	"bufio"
 	_ "embed"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,7 +15,7 @@ import (
 //go:embed input.txt
 var input string
 
-const N = 59 //10 //59
+const N = 59 // 10 //59
 
 func min(a int, b int) (int, int) {
 	if a < b {
@@ -24,9 +25,25 @@ func min(a int, b int) (int, int) {
 	}
 }
 
+func max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func Contains(values []string, val string) bool {
 	for i := 0; i < len(values); i++ {
 		if values[i] == val {
+			return true
+		}
+	}
+	return false
+}
+
+func PathContains(path []int, val int) bool {
+	for i := 0; i < len(path); i++ {
+		if path[i] == val {
 			return true
 		}
 	}
@@ -197,15 +214,20 @@ func ParseInput() {
 
 		v := Valve{name, flow, connectedTo}
 		valves = append(valves, v)
+
+		// so "AA" is always the first valve at index 0
 		sort.SliceStable(valves, func(i int, j int) bool {
 			return valves[i].id < valves[j].id
 		})
 	}
 }
 
-const TIMEOUT_PART1 = 30
+func Part1(maxTime int, distances *[N][N]int) int {
+	var valvesIndexes []int = GetIndexesOfValvesWithPositivePressure()
+	return Part1_BFS(maxTime, distances, valvesIndexes)
+}
 
-func Part1(distances *[N][N]int) int {
+func Part1_BFS(maxTime int, distances *[N][N]int, valvesIndexes []int) int {
 	var currentState = State{t: 1, location: 0, production: 0}
 	states := deque.NewDeque[State]()
 
@@ -222,8 +244,8 @@ func Part1(distances *[N][N]int) int {
 			maxProd = currentState.production
 		}
 
-		// action = all moves
-		for idxValve := range valves {
+		// action = all moves to usefull valves
+		for _, idxValve := range valvesIndexes {
 			if idxValve == currentState.location {
 				// we do not move
 				// action = open the vanne
@@ -234,7 +256,7 @@ func Part1(distances *[N][N]int) int {
 					UpdateProduction(&newState, 1)
 
 					// we "memoize" this new state
-					if newState.t <= TIMEOUT_PART1 {
+					if newState.t <= maxTime {
 						// PrintReportState(&currentState)
 						// fmt.Println("You open valve", valves[currentState.location].id)
 						_, ok := visitedState[newState]
@@ -256,7 +278,7 @@ func Part1(distances *[N][N]int) int {
 				// skip if vannes is already opened
 				continue
 			}
-			if currentState.t+distances[currentState.location][idxValve] > TIMEOUT_PART1 {
+			if currentState.t+distances[currentState.location][idxValve] > maxTime {
 				// skip if out of time
 				continue
 			}
@@ -267,7 +289,7 @@ func Part1(distances *[N][N]int) int {
 			UpdateProduction(&newState, distances[currentState.location][idxValve])
 
 			// we "memoize" this new state
-			if newState.t <= TIMEOUT_PART1 {
+			if newState.t <= maxTime {
 				_, ok := visitedState[newState]
 				if !ok {
 					// PrintReportState(&currentState)
@@ -280,8 +302,8 @@ func Part1(distances *[N][N]int) int {
 
 		// action = wait till the end
 		newState := currentState
-		jump := TIMEOUT_PART1 - newState.t
-		newState.t = TIMEOUT_PART1
+		jump := maxTime - newState.t
+		newState.t = maxTime
 		UpdateProduction(&newState, jump)
 
 		_, ok := visitedState[newState]
@@ -296,227 +318,6 @@ func Part1(distances *[N][N]int) int {
 	return maxProd
 }
 
-type StateElephant struct {
-	t               [2]int
-	lastTime        [2]int
-	location        [2]int
-	candidateValves [2]int
-	valveStates     [N]bool
-	production      int
-}
-
-func PrintReportStateElephant(state *StateElephant) {
-	fmt.Println("== Minute", state.t[0], state.t[1], "==")
-
-	openedValvesCount := 0
-	for idx, v := range valves {
-		if state.valveStates[idx] {
-			openedValvesCount++
-			fmt.Print("valve ", v.id, " is open, ")
-		}
-	}
-	if openedValvesCount == 0 {
-		fmt.Println("No valves are open.")
-	} else {
-		fmt.Println("releasing", GetInstantPressureElephant(state), "pressure")
-	}
-
-}
-
-func GetInstantPressureElephant(state *StateElephant) int {
-	pressure := 0
-	for i := 0; i < N; i++ {
-		if state.valveStates[i] {
-			pressure += valves[i].flow
-		}
-	}
-	return pressure
-}
-
-func UpdateProductionPart2(state *StateElephant, player int, upToTime int) {
-	kTimes := (upToTime - state.lastTime[player])
-	//	kTimes1 := (upToTime - state.lastTime[1])
-	for i := 0; i < N; i++ {
-		if state.valveStates[i] {
-			state.production += kTimes * valves[i].flow
-			//			state.production += kTimes1 * valves[i].flow
-		}
-	}
-	state.lastTime[0] = upToTime
-	state.lastTime[1] = upToTime
-}
-
-func PlayAction(distances *[N][N]int, CurrentStates []StateElephant, player int) []StateElephant {
-	var NewStates []StateElephant = make([]StateElephant, 0)
-
-	for _, currentState := range CurrentStates {
-
-		// action = all moves
-		for idxValve := range valves {
-			if idxValve == currentState.location[player] {
-				// we do not move
-				// action = open the vanne
-				if !currentState.valveStates[currentState.location[player]] && valves[currentState.location[player]].flow > 0 {
-					newState := currentState
-					newState.lastTime[player] = newState.t[player]
-					newState.t[player] += 1
-					newState.valveStates[currentState.location[player]] = true
-					newState.candidateValves[player] = -1
-					NewStates = append(NewStates, newState)
-				}
-
-				continue
-			}
-
-			if valves[idxValve].flow == 0 {
-				// skip if vanne does not free any pressure
-				continue
-			}
-			if currentState.valveStates[idxValve] {
-				// skip if vannes is already opened
-				continue
-			}
-			if currentState.t[player]+distances[currentState.location[player]][idxValve] > TIMEOUT_PART2 {
-				// skip if out of time
-				continue
-			}
-
-			if player == 0 {
-				if currentState.candidateValves[1] == idxValve {
-					// skip already target of other player
-					continue
-				}
-			} else {
-				if currentState.candidateValves[0] == idxValve {
-					// skip already target of other player
-					continue
-				}
-			}
-
-			newState := currentState
-			newState.location[player] = idxValve
-			newState.lastTime[player] = newState.t[player]
-			newState.t[player] += distances[currentState.location[player]][idxValve]
-			newState.candidateValves[player] = idxValve
-
-			NewStates = append(NewStates, newState)
-		}
-
-		// action = wait till the end
-		newState := currentState
-		newState.lastTime[player] = newState.t[player]
-		newState.t[player] = TIMEOUT_PART2
-
-		NewStates = append(NewStates, newState)
-	}
-	return NewStates
-}
-
-const TIMEOUT_PART2 = 26
-
-func Part2(distances *[N][N]int) int {
-	var currentState = StateElephant{t: [2]int{1, 1}, location: [2]int{0, 0}, production: 0, lastTime: [2]int{1, 1}, candidateValves: [2]int{-1, -1}}
-	states := deque.NewDeque[StateElephant]()
-
-	states.PushBack(currentState)
-
-	var visitedState map[StateElephant]bool = make(map[StateElephant]bool)
-
-	maxProd := 0
-
-	for !states.IsEmpty() {
-		currentState = states.PopFront()
-
-		if currentState.t[0] <= currentState.t[1] {
-			UpdateProductionPart2(&currentState, 0, currentState.t[0])
-		} else {
-			UpdateProductionPart2(&currentState, 1, currentState.t[1])
-		}
-
-		// PrintReportStateElephant(&currentState)
-
-		if currentState.production > maxProd {
-			maxProd = currentState.production
-			// if maxProd > 100 {
-			// 	fmt.Println("-->", maxProd)
-			// }
-		}
-
-		var NewStates []StateElephant = make([]StateElephant, 0)
-		NewStates = append(NewStates, currentState)
-		NewStates = PlayAction(distances, NewStates, 0)
-		// fmt.Println(".->", NewStates)
-		NewStates = PlayAction(distances, NewStates, 1)
-		// fmt.Println("-->", NewStates)
-		for _, newState := range NewStates {
-			if newState.t[0] <= TIMEOUT_PART2 && newState.t[1] <= TIMEOUT_PART2 {
-				_, ok := visitedState[newState]
-				if !ok {
-					visitedState[newState] = true
-					states.PushBack(newState)
-				}
-			}
-		}
-	}
-
-	return maxProd
-}
-
-func Permutations(arr []int) [][]int {
-	var helper func([]int, int)
-	res := [][]int{}
-
-	helper = func(arr []int, n int) {
-		if n == 1 {
-			tmp := make([]int, len(arr))
-			copy(tmp, arr)
-			res = append(res, tmp)
-		} else {
-			for i := 0; i < n; i++ {
-				helper(arr, n-1)
-				if n%2 == 1 {
-					tmp := arr[i]
-					arr[i] = arr[n-1]
-					arr[n-1] = tmp
-				} else {
-					tmp := arr[0]
-					arr[0] = arr[n-1]
-					arr[n-1] = tmp
-				}
-			}
-		}
-	}
-	helper(arr, len(arr))
-	return res
-}
-
-func Part1UsingPermutations(distances *[N][N]int) int {
-	var useFullValvesIndex []int = GetIndexesOfValvesWithPositivePressure()
-
-	perms := Permutations(useFullValvesIndex)
-
-	startValveIndex := 0 // 0 for sample.txt // 2 for input.txt
-	max := 0
-
-	for _, p := range perms {
-		gain := 0
-		cost := 0
-
-		p = append([]int{startValveIndex}, p...)
-
-		for i := 1; i < len(p); i++ {
-			t := distances[p[i-1]][p[i]] + 1
-			cost += t
-			gain += (30 - cost) * valves[p[i]].flow
-		}
-		if gain > max {
-			max = gain
-		}
-	}
-
-	return max
-}
-
 func GetIndexesOfValvesWithPositivePressure() []int {
 	var useFullValvesIndex []int = make([]int, 0)
 	for idx, v := range valves {
@@ -529,34 +330,26 @@ func GetIndexesOfValvesWithPositivePressure() []int {
 }
 
 var bestGain int = 0
+var bestPath []int
 
-func Part1_Backtracking(startValveIndex int, distances *[N][N]int) int {
+func Part1_Backtracking(startValveIndex int, distances *[N][N]int) (int, []int) {
 	var valvesIndex []int = GetIndexesOfValvesWithPositivePressure()
 	bestGain = 0
+	bestPath = nil
 	var taken []bool = make([]bool, len(valvesIndex))
-	Part1_Backtracking_Solver(valvesIndex, []int{startValveIndex}, distances, 0, 0, 0, taken)
-	return bestGain
+	Part1_Backtracking_Solver(30, valvesIndex, []int{startValveIndex}, distances, 0, 0, 0, taken)
+	return bestGain, bestPath
 }
 
-func Part1_Backtracking_Solver(valvesIndex []int, path []int, distances *[N][N]int, depth int, cost int, gain int, taken []bool) {
+func Part1_Backtracking_Solver(timeLimit int, valvesIndex []int, path []int, distances *[N][N]int, depth int, cost int, gain int, taken []bool) {
 	if depth > len(valvesIndex) {
-		// do we need to evaluate the solution ?
 		return
 	}
 
-	if depth > 0 {
-		// evaluate and store if better
-		t := distances[path[depth-1]][path[depth]] + 1
-		cost += t
-		gain += (30 - cost) * valves[path[depth]].flow
-
-		if cost > 30 {
-			return
-		}
-
-		if gain > bestGain {
-			bestGain = gain
-		}
+	if gain > bestGain {
+		bestGain = gain
+		bestPath = make([]int, len(path))
+		copy(bestPath, path)
 	}
 
 	for i := 0; i < len(valvesIndex); i++ {
@@ -565,27 +358,101 @@ func Part1_Backtracking_Solver(valvesIndex []int, path []int, distances *[N][N]i
 		}
 		taken[i] = true
 		path = append(path, valvesIndex[i])
-		Part1_Backtracking_Solver(valvesIndex, path, distances, depth+1, cost, gain, taken)
+
+		t := distances[path[depth]][valvesIndex[i]] + 1
+		if cost+t < timeLimit {
+			newGain := gain + (timeLimit-(cost+t))*valves[valvesIndex[i]].flow
+			Part1_Backtracking_Solver(timeLimit, valvesIndex, path, distances, depth+1, cost+t, newGain, taken)
+		}
+
 		taken[i] = false
-		path = path[:len(path)-1]
+		path = path[:depth+1]
 	}
+}
+
+func ComputeCostAndGainOfPath(maxTime int, distances *[N][N]int, p []int) (cost int, gain int) {
+	for i := 1; i < len(p); i++ {
+		t := distances[p[i-1]][p[i]] + 1
+		cost += t
+		gain += (maxTime - cost) * valves[p[i]].flow
+	}
+	return cost, gain
+}
+
+func SelectValvesFromBitString(valvesIndexes []int, valvesBitString int) (selectedValvesIndexes []int) {
+	selectedValvesIndexes = make([]int, 0)
+
+	index := 0
+	for valvesBitString > 0 {
+		if valvesBitString&1 > 0 {
+			selectedValvesIndexes = append(selectedValvesIndexes, valvesIndexes[index])
+		}
+		valvesBitString = valvesBitString >> 1
+		index++
+	}
+
+	return selectedValvesIndexes
+}
+
+func Part2_Split(timeLimit int, startValveIndex int, distances *[N][N]int) (totalGain int) {
+	var valvesIndexes []int = GetIndexesOfValvesWithPositivePressure()
+	// var manPath, elephantPath []int
+
+	totalGain = math.MinInt
+	valvesCount := len(valvesIndexes)
+	valvesBitString := (1 << valvesCount) - 1 // all bits at 1 == all valves
+
+	var gains map[int]int = make(map[int]int)     // valves bitstring -> bestgain
+	var paths map[int][]int = make(map[int][]int) // valves bitstring -> best path (valves indexes)
+
+	for selection := 0; selection < (valvesBitString + 1); selection++ {
+		// fmt.Printf("%05b %05b\n", selection, remaining)
+		var selectedValvesIndexes []int = SelectValvesFromBitString(valvesIndexes, selection)
+		remaining := valvesBitString ^ selection
+
+		if _, known := gains[selection]; !known {
+			bestGain = 0
+			bestPath = nil
+			var taken []bool = make([]bool, len(selectedValvesIndexes))
+			Part1_Backtracking_Solver(timeLimit, selectedValvesIndexes, []int{startValveIndex}, distances, 0, 0, 0, taken)
+
+			// bestGain = Part1_BFS(timeLimit, distances, selectedValvesIndexes)
+			gains[selection] = bestGain
+			paths[selection] = bestPath
+		}
+
+		// fmt.Printf("%d %016b %v\n", gains[selection], selection, paths[selection])
+		// fmt.Printf("%d %016b %v\n", gains[remaining], remaining, paths[remaining])
+
+		// totalGain = max(totalGain, gains[selection]+gains[remaining])
+		if gains[selection]+gains[remaining] > totalGain {
+			totalGain = gains[selection] + gains[remaining]
+			// manPath = paths[selection]
+			// elephantPath = paths[remaining]
+		}
+	}
+
+	// fmt.Println(totalGain)
+	// cost, gain := ComputeCostAndGainOfPath(timeLimit, distances, manPath)
+	// fmt.Printf("man path: %v, cost:%d gain:%d\n", manPath, cost, gain)
+
+	// cost, gain = ComputeCostAndGainOfPath(timeLimit, distances, elephantPath)
+	// fmt.Printf("elephant path: %v, cost:%d gain:%d\n", elephantPath, cost, gain)
+
+	return totalGain
 }
 
 func Solve() (int, int) {
 	ParseInput()
 
 	var distances *[N][N]int = ComputeDistancesMatrix()
-
 	// PrintDistancesMatrix(distances)
 	// PrintDistances(distances)
 
-	// part1 := 0
-	// part1 := Part1(distances)
-	// part1 := Part1UsingPermutations(distances)
-	part1 := Part1_Backtracking(0, distances)
+	// part1 := Part1(30, distances)
+	part1, _ := Part1_Backtracking(0, distances)
 
-	part2 := 0
-	// part2 := Part2(distances)
+	part2 := Part2_Split(26, 0, distances)
 
-	return part1, part2 // 1651 / 1720 (6 sec.), ?
+	return part1, part2 // 1651 / 1720, 1707 / 2582
 }
