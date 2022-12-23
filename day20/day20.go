@@ -176,11 +176,11 @@ func Part2(numbers []int) int {
 	}
 
 	a := values[(indexOfZero+1000)%size] // should be 4
-	fmt.Println(a)
+	// fmt.Println(a)
 	b := values[(indexOfZero+2000)%size] // should be -3
-	fmt.Println(b)
+	// fmt.Println(b)
 	c := values[(indexOfZero+3000)%size] // should be 2
-	fmt.Println(c)
+	// fmt.Println(c)
 
 	return a + b + c // should be 3 for sample
 }
