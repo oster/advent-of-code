@@ -5,11 +5,29 @@ import (
 	_ "embed"
 	"fmt"
 	"math"
+	"os"
 	"strings"
 )
 
-//go:embed input.txt
+//go:embed sample.txt
 var input string
+
+var facesDescriptor [6][2]int = [6][2]int{{0, 8}, {4, 0}, {4, 4}, {4, 8}, {8, 8}, {8, 12}} // sample
+// var facesDescriptor [6][2]int = [6][2]int{{0, 50}, {0, 100}, {50, 50}, {100, 0}, {100, 50}, {150, 0}} // input
+
+type TransDestination struct {
+	face     int
+	rotation int
+}
+type Transitions [6][4]TransDestination
+
+var transitions Transitions = Transitions{
+	{TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}}, // from face 0 to face x (E,S,W,N)
+	{TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}}, // from face 1 to face x
+	{TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}}, // from face 2 to face x
+	{TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}}, // from face 3 to face x
+	{TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}}, // from face 4 to face x
+	{TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}, TransDestination{face: 0, rotation: 0}}} // from face 5 to face x
 
 func min(a int, b int) int {
 	if a < b {
@@ -56,11 +74,45 @@ type Move struct {
 	rotation int
 }
 
+func ParseMoveLine(movesLine string) (moves []Move) {
+	moves = make([]Move, 0)
+
+	value := 0
+	var move Move
+
+	for idx := 0; idx < len(movesLine); idx++ {
+		char := movesLine[idx]
+		if char >= '0' && char <= '9' {
+			value = value*10 + int(char-'0')
+			continue
+		} else {
+			moves = append(moves, Move{length: value, rotation: 0})
+		}
+
+		switch char {
+		case 'R':
+			move = Move{length: 0, rotation: 1}
+			value = 0
+		case 'L':
+			move = Move{length: 0, rotation: -1}
+			value = 0
+		default:
+			panic("invalid rotation instruction in puzzle description")
+		}
+		moves = append(moves, move)
+	}
+
+	if value != 0 {
+		moves = append(moves, Move{length: value, rotation: 0})
+	}
+
+	return moves
+}
+
 func ParseInput() (data [][]byte, rows map[int]Interval, columns map[int]Interval, moves []Move) {
 	rows = make(map[int]Interval)
 	columns = make(map[int]Interval)
 	data = make([][]byte, 0)
-	moves = make([]Move, 0)
 
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	scanner.Split(bufio.ScanLines)
@@ -97,34 +149,8 @@ func ParseInput() (data [][]byte, rows map[int]Interval, columns map[int]Interva
 	scanner.Scan()
 	lastLine := scanner.Text()
 
-	value := 0
-	var move Move
+	moves = ParseMoveLine(lastLine)
 
-	for idx := 0; idx < len(lastLine); idx++ {
-		char := lastLine[idx]
-		if char >= '0' && char <= '9' {
-			value = value*10 + int(char-'0')
-			continue
-		} else {
-			moves = append(moves, Move{length: value, rotation: 0})
-		}
-
-		switch char {
-		case 'R':
-			move = Move{length: 0, rotation: 1}
-			value = 0
-		case 'L':
-			move = Move{length: 0, rotation: -1}
-			value = 0
-		default:
-			panic("invalid rotation instruction in puzzle description")
-		}
-		moves = append(moves, move)
-	}
-
-	if value != 0 {
-		moves = append(moves, Move{length: value, rotation: 0})
-	}
 	return data, rows, columns, moves
 }
 
@@ -208,8 +234,121 @@ func Part1(data [][]byte, rows map[int]Interval, columns map[int]Interval, moves
 	return 1000*(current.y+1) + 4*(current.x+1) + facing
 }
 
-func Part2() int {
-	return 0
+type Face struct {
+	data [][]byte
+	size int
+}
+
+func (current *Face) Print() {
+	for y := 0; y < current.size; y++ {
+		for x := 0; x < current.size; x++ {
+			fmt.Printf("%c", current.data[y][x])
+		}
+		fmt.Println()
+	}
+}
+
+type Cube struct {
+	faces [6]Face
+	size  int
+}
+
+func (current *Cube) Print() {
+	for faceId := 0; faceId < 6; faceId++ {
+		current.faces[faceId].Print()
+		fmt.Println()
+	}
+}
+
+func ParseInputPart2(size int, facesDescriptor [6][2]int) (cube Cube, moves []Move) {
+	cube = Cube{size: size}
+
+	lines := strings.Split(input, "\n")
+
+	for faceId := 0; faceId < 6; faceId++ {
+		var someFace Face = Face{size: size}
+		someFace.data = make([][]byte, size)
+
+		startY := facesDescriptor[faceId][0]
+		startX := facesDescriptor[faceId][1]
+		for y := 0; y < size; y++ {
+			someFace.data[y] = make([]byte, size)
+			for x := 0; x < size; x++ {
+				someFace.data[y][x] = lines[y+startY][x+startX]
+			}
+		}
+		cube.faces[faceId] = someFace
+	}
+
+	moves = ParseMoveLine(lines[len(lines)-2])
+	return cube, moves
+}
+
+type Pos3D struct {
+	x    int
+	y    int
+	face int
+}
+
+func Part2(cube Cube, moves []Move) int {
+	var current Pos3D = Pos3D{0, 0, 0}
+	facing := 0 // heading to EAST
+
+	if cube.faces[current.face].data[current.y][current.x] != '.' {
+		panic("wrong starting coord:" + fmt.Sprintf("%v", current))
+	}
+
+	for _, move := range moves {
+
+		if move.length == 0 {
+			// only rotation
+			facing = (facing + move.rotation + HEADINGS_SIZE) % HEADINGS_SIZE
+			continue
+		}
+
+		var heading Direction = HEADINGS[facing]
+
+		var next Pos3D = current
+
+		for step := 0; step < move.length; step++ {
+			heading = HEADINGS[facing]
+
+			next.x = (current.x + heading.x)
+			if next.x >= cube.size {
+				// switch to another face
+				next.x = 0
+			} else if next.x < 0 {
+				// switch to another face
+				next.x = cube.size - 1
+			}
+
+			next.y = (current.y + heading.y)
+			if next.y >= cube.size {
+				// switch to anoter face
+				next.y = 0
+			} else if next.y < 0 {
+				// switch to anoter face
+				next.y = cube.size - 1
+			}
+
+			fmt.Printf("%c virtually at (%d,%d)\n", GetFacingAsChar(facing), next.x, next.y)
+			if cube.faces[next.face].data[next.y][next.x] == '.' {
+				// mark the last position
+				cube.faces[current.face].data[current.y][next.x] = GetFacingAsChar(facing)
+				current = next
+			} else {
+				// can't move
+				break
+			}
+		}
+
+		fmt.Println()
+		cube.faces[current.face].Print()
+		os.Stdin.Read(make([]byte, 1))
+	}
+
+	return 1000*(current.y+1) + 4*(current.x+1) + facing
+
 }
 
 func Solve() (int, int) {
@@ -226,7 +365,20 @@ func Solve() (int, int) {
 	// fmt.Println()
 	// fmt.Println(moves)
 
-	part1 := Part1(data, rows, columns, moves)
-	part2 := 0
+	part1 := Part1(data, rows, columns, moves) // 6032, 109094
+
+	// var cube Cube
+	// cube, moves = ParseInputPart2(4, facesDescriptor) // sample.txt - (startY, startX, startY+size, startX+size)
+
+	//TODO: add transitions between faces
+	// (faceIdx, direction) -> faceIdx (do we need to change the heading also?)
+
+	//	cube, moves = ParseInputPart2(50, facesDescriptor) // input.txt
+
+	// cube.Print()
+	// fmt.Println(moves)
+
+	// part2 := Part2(cube, moves)
+	part2 := 0 // 5031, ?
 	return part1, part2
 }
