@@ -99,36 +99,41 @@ func MoveBlizzards() {
 }
 
 var blizzardsAtAllTime []map[Pos]bool
+var PRECOMPUTATION bool = false
 
 func ComputeBlizzardAtAllTime() {
-	// fmt.Println("starting computation of blizzards")
-	ppcm := ppcm(width, height)
-	// fmt.Println(ppcm)
+	if !PRECOMPUTATION {
 
-	blizzardsAtAllTime = make([]map[Pos]bool, ppcm)
+		// fmt.Println("starting computation of blizzards")
+		ppcm := ppcm(width, height)
+		// fmt.Println(ppcm)
 
-	blizzardsAtAllTime[0] = make(map[Pos]bool)
-	for i := 0; i < len(blizzards); i++ {
-		blizz := blizzards[i]
-		blizzardsAtAllTime[0][Pos{blizz.x, blizz.y}] = true
-	}
+		blizzardsAtAllTime = make([]map[Pos]bool, ppcm)
 
-	for t := 1; t < ppcm; t++ {
-		blizzardsAtAllTime[t] = make(map[Pos]bool)
+		blizzardsAtAllTime[0] = make(map[Pos]bool)
 		for i := 0; i < len(blizzards); i++ {
 			blizz := blizzards[i]
-			// fmt.Printf("%+v (before)\n", blizz)
-			blizz.x = (blizz.x-1+blizz.direction.x+width-2)%(width-2) + 1
-			blizz.y = (blizz.y-1+blizz.direction.y+height-2)%(height-2) + 1
-			// fmt.Printf("%+v (after)\n", blizz)
-			blizzardsAtAllTime[t][Pos{blizz.x, blizz.y}] = true
+			blizzardsAtAllTime[0][Pos{blizz.x, blizz.y}] = true
 		}
+
+		for t := 1; t < ppcm; t++ {
+			blizzardsAtAllTime[t] = make(map[Pos]bool)
+			for i := 0; i < len(blizzards); i++ {
+				blizz := blizzards[i]
+				// fmt.Printf("%+v (before)\n", blizz)
+				blizz.x = (blizz.x-1+blizz.direction.x+width-2)%(width-2) + 1
+				blizz.y = (blizz.y-1+blizz.direction.y+height-2)%(height-2) + 1
+				// fmt.Printf("%+v (after)\n", blizz)
+				blizzardsAtAllTime[t][Pos{blizz.x, blizz.y}] = true
+			}
+		}
+		PRECOMPUTATION = true
 	}
 	// fmt.Println("end of computation of blizzards")
 }
 
 func IsBlizzardAtTime(time int, pos Pos) bool {
-	_, present := blizzardsAtAllTime[time][pos]
+	_, present := blizzardsAtAllTime[time%len(blizzardsAtAllTime)][pos]
 	return present
 }
 
@@ -188,7 +193,7 @@ func Part1() int {
 	// 	fmt.Println()
 	// }
 
-	elapsedTime := Part1BFSSearch(start, end)
+	elapsedTime := Part1BFSSearch(start, end, State{0, start})
 	return elapsedTime
 }
 
@@ -229,13 +234,12 @@ func PrintPath(visited map[State]State, end State, startPos Pos) {
 	}
 }
 
-func Part1BFSSearch(start Pos, end Pos) int {
+func Part1BFSSearch(start Pos, end Pos, initialState State) int {
 
 	var states *deque.Deque[State] = deque.NewDeque[State]()
 	// var visited map[State]bool = make(map[State]bool)
 	var visited map[State]State = make(map[State]State)
 
-	var initialState State = State{0, start}
 	states.PushBack(initialState)
 
 	// fmt.Printf("%+v\n", initialState)
@@ -277,18 +281,20 @@ func Part1BFSSearch(start Pos, end Pos) int {
 }
 
 func Part2() int {
-	return 0
+	time := Part1()
+	time = Part1BFSSearch(end, start, State{time, end})
+	time = Part1BFSSearch(start, end, State{time, start})
+
+	return time
 }
 
 func Solve() (int, int) {
 	ParseInput()
-
 	// PrintGrid()
 	// fmt.Printf("start: %+v, end: %+v\n", start, end)
 	// fmt.Println(blizzards)
 
-	part1 := Part1()
-
-	part2 := 0
+	part1 := Part1() // 18, 279
+	part2 := Part2() // 54, 762
 	return part1, part2
 }
