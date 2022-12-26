@@ -143,7 +143,7 @@
 
 
 
-### [Day 19: TBA](https://adventofcode.com/2022/day/19)
+### [Day 19: Not Enough Minerals](https://adventofcode.com/2022/day/19)
 [problem](https://adventofcode.com/2022/day/19) / [solution](./day19)
 
 
@@ -151,7 +151,7 @@
 
 
 
-### [Day 20: TBA](https://adventofcode.com/2022/day/20)
+### [Day 20: Grove Positioning System](https://adventofcode.com/2022/day/20)
 [problem](https://adventofcode.com/2022/day/20) / [solution](./day20)
 
 
@@ -159,7 +159,7 @@
 
 
 
-### [Day 21: TBA](https://adventofcode.com/2022/day/21)
+### [Day 21: Monkey Math](https://adventofcode.com/2022/day/21)
 [problem](https://adventofcode.com/2022/day/21) / [solution](./day21)
 
 
@@ -167,7 +167,7 @@
 
 
 
-### [Day 22: TBA](https://adventofcode.com/2022/day/22)
+### [Day 22: Monkey Map](https://adventofcode.com/2022/day/22)
 [problem](https://adventofcode.com/2022/day/22) / [solution](./day22)
 
 
@@ -175,7 +175,7 @@
 
 
 
-### [Day 23: TBA](https://adventofcode.com/2022/day/23)
+### [Day 23: Unstable Diffusion](https://adventofcode.com/2022/day/23)
 [problem](https://adventofcode.com/2022/day/23) / [solution](./day23)
 
 
@@ -183,7 +183,7 @@
 
 
 
-### [Day 24: TBA](https://adventofcode.com/2022/day/24)
+### [Day 24: Blizzard Basin](https://adventofcode.com/2022/day/24)
 [problem](https://adventofcode.com/2022/day/24) / [solution](./day24)
 
 
@@ -191,7 +191,7 @@
 
 
 
-### [Day 25: TBA](https://adventofcode.com/2022/day/25)
+### [Day 25: Full of Hot Air](https://adventofcode.com/2022/day/25)
 [problem](https://adventofcode.com/2022/day/25) / [solution](./day25)
 
 
