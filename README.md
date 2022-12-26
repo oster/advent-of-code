@@ -2,6 +2,8 @@
 
 ## Year 2022
 
+![](./figs/aoc-2022-completed.png)
+
 ### [Day 01: Calorie Counting](https://adventofcode.com/2022/day/1)
 [problem](https://adventofcode.com/2022/day/1) / [solution](./day01)
 
