@@ -27,17 +27,13 @@ pub fn compute_hand_kind(cards: &str, card_symbols: &Vec<char>) -> HandKind {
 
     let (max, max2) = (card_occurrences[0], card_occurrences[1]);
 
-    match max {
-        5 => HandKind::FiveOfAKind,
-        4 => HandKind::FourOfAKind,
-        3 => match max2 {
-            2 => HandKind::FullHouse,
-            _ => HandKind::ThreeOfAKind,
-        },
-        2 => match max2 {
-            2 => HandKind::TwoPairs,
-            _ => HandKind::OnePair,
-        },
+    match (max, max2) {
+        (5, _) => HandKind::FiveOfAKind,
+        (4, _) => HandKind::FourOfAKind,
+        (3, 2) => HandKind::FullHouse,
+        (3, _) => HandKind::ThreeOfAKind,
+        (2, 2) => HandKind::TwoPairs,
+        (2, _) => HandKind::OnePair,
         _ => HandKind::HighCard,
     }
 }
@@ -48,27 +44,20 @@ pub fn compute_hand_kind_with_joker(cards: &str, card_symbols: &Vec<char>) -> Ha
     let cards_without_joker = cards.chars().filter(|c| *c != 'J').collect::<String>();
     let hand_kind = compute_hand_kind(&cards_without_joker, &card_symbols);
 
-    match joker_count {
-        5 => HandKind::FiveOfAKind,
-        4 => HandKind::FiveOfAKind,
-        3 => match hand_kind {
-            HandKind::OnePair => HandKind::FiveOfAKind,
-            _ => HandKind::FourOfAKind,
-        },
-        2 => match hand_kind {
-            HandKind::ThreeOfAKind => HandKind::FiveOfAKind,
-            HandKind::OnePair => HandKind::FourOfAKind,
-            _ => HandKind::ThreeOfAKind,
-        },
-        1 => match hand_kind {
-            HandKind::FourOfAKind => HandKind::FiveOfAKind,
-            HandKind::ThreeOfAKind => HandKind::FourOfAKind,
-            HandKind::TwoPairs => HandKind::FullHouse,
-            HandKind::OnePair => HandKind::ThreeOfAKind,
-            _ => HandKind::OnePair,
-        },
-        0 => compute_hand_kind(cards, card_symbols),
-        _ => HandKind::HighCard,
+    match (joker_count, hand_kind) {
+        (5, _) => HandKind::FiveOfAKind,
+        (4, _) => HandKind::FiveOfAKind,
+        (3, HandKind::OnePair) => HandKind::FiveOfAKind,
+        (3, _) => HandKind::FourOfAKind,
+        (2, HandKind::ThreeOfAKind) => HandKind::FiveOfAKind,
+        (2, HandKind::OnePair) => HandKind::FourOfAKind,
+        (2, _) => HandKind::ThreeOfAKind,
+        (1, HandKind::FourOfAKind) => HandKind::FiveOfAKind,
+        (1, HandKind::ThreeOfAKind) => HandKind::FourOfAKind,
+        (1, HandKind::TwoPairs) => HandKind::FullHouse,
+        (1, HandKind::OnePair) => HandKind::ThreeOfAKind,
+        (0, _) => compute_hand_kind(cards, card_symbols),
+        _ => HandKind::OnePair,
     }
 }
 
@@ -86,11 +75,11 @@ pub fn compute_hand_strength(cards: &str, kind: HandKind, card_symbols: &Vec<cha
 }
 
 pub fn parse_input(
-    filename: &str,
+    input: &String,
     card_symbols: Vec<char>,
     hand_kind_computer: fn(&str, &Vec<char>) -> HandKind,
 ) -> Vec<(String, u64, u64)> {
-    let hands: Vec<(String, u64, u64)> = read_values_from_file(filename)
+    let hands: Vec<(String, u64, u64)> = input
         .lines()
         .map(|line| {
             let parts: Vec<&str> = line.split_whitespace().collect();
@@ -123,7 +112,7 @@ mod tests {
     #[test]
     fn test_sample_part1() {
         let mut values = parse_input(
-            "./sample.txt",
+            &read_values_from_file("./sample.txt"),
             vec![
                 '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
             ],
@@ -137,7 +126,7 @@ mod tests {
     #[test]
     fn test_sample_part2() {
         let mut values = parse_input(
-            "./sample.txt",
+            &read_values_from_file("./sample.txt"),
             vec![
                 'J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A',
             ],
