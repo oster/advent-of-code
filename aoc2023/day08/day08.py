@@ -7,24 +7,20 @@ def read_input(filename : str) -> Generator[str, None, None]:
             yield line.rstrip()
 
 
-def parse_input(filename : str) -> tuple[str, dict]:
+def parse_input(filename : str) -> tuple[list[int], dict[str, str]]:
     input = read_input(filename)
 
-    instructions = input.__next__().rstrip()
-    input.__next__()
+    instructions = list(map(lambda ins: 0 if ins == 'L' else 1, input.__next__().rstrip()))
 
-    step = {}
+    input.__next__() # skip blank
 
+    path = {}
     for line in input:
-        src, other = line.split('=')
-        src = src.strip()
+        # ZZZ = (ZZZ, ZZZ)
+        src, left, right = line[0:3], line[7:10], line[12:15]
+        path[src] = (left, right)
 
-        left, right = other.split(',')
-        left, right = left.strip()[1:], right.strip()[:-1]
-
-        step[src] = (left, right)
-
-    return (instructions, step)
+    return (instructions, path)
 
 
 def part1(filename : str) -> int:
@@ -35,15 +31,11 @@ def part1(filename : str) -> int:
     n = len(instructions)
     step = 0
     while current != 'ZZZ':
-        step = step + 1
-        if instructions[i] == 'L':
-            current = next_step[current][0]
-        else:
-            current = next_step[current][1]
+        step += 1
+        current = next_step[current][instructions[i]]
         i = (i + 1) % n
 
     return step
-
 
 
 # # Greatest Common Divisor
@@ -58,7 +50,7 @@ def part1(filename : str) -> int:
 #     return gcd_rec(b % a, a)
 
 
-def lcm(a, b):
+def lcm(a : int, b : int) -> int:
     # Lowest Common Multiple
     return a * b // math.gcd(a, b)
 
@@ -79,19 +71,16 @@ def part2(filename : str) -> int:
             starts.append(k)
 
     n = len(instructions)
-
     cycles = []
     for start in starts:         
         current = start
         i = 0
         step = 0
         while current[2] != 'Z':
-            step = step + 1
-            if instructions[i] == 'L':
-                current = next_step[current][0]
-            else:
-                current = next_step[current][1]
+            step += 1
+            current = next_step[current][instructions[i]]
             i = (i + 1) % n
+
         cycles.append(step)
 
     return lcms(cycles)
