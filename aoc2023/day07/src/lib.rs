@@ -22,7 +22,7 @@ pub fn compute_hand_kind(cards: &str, card_symbols: &Vec<char>) -> HandKind {
         .map(|idx| cards.chars().filter(|c| *c == card_symbols[idx]).count() as u64)
         .collect::<Vec<u64>>();
 
-    card_occurrences.sort();
+    card_occurrences.sort_unstable();
     card_occurrences.reverse();
 
     let (max, max2) = (card_occurrences[0], card_occurrences[1]);
@@ -41,7 +41,7 @@ pub fn compute_hand_kind(cards: &str, card_symbols: &Vec<char>) -> HandKind {
 pub fn compute_hand_kind_with_joker(cards: &str, card_symbols: &Vec<char>) -> HandKind {
     let joker_count = cards.chars().filter(|c| *c == 'J').count() as u64;
 
-    let cards_without_joker = cards.chars().filter(|c| *c != 'J').collect::<String>();
+    let cards_without_joker = cards.chars().filter(|&c| c != 'J').collect::<String>();
     let hand_kind = compute_hand_kind(&cards_without_joker, &card_symbols);
 
     match (joker_count, hand_kind) {
@@ -96,13 +96,11 @@ pub fn parse_input(
 }
 
 pub fn compute_winnings(hands: &mut Vec<(String, u64, u64)>) -> u64 {
-    let mut res = 0;
-    hands.sort_by_key(|k| k.1);
+    hands.sort_unstable_by_key(|k| k.1);
 
-    for (rank, hand) in hands.iter().enumerate() {
-        res += hand.2 * ((rank as u64) + 1);
-    }
-    return res;
+    hands.iter().enumerate().fold(0, |acc, (rank, hand)| {
+        acc + hand.2 * ((rank as u64) + 1)
+    })
 }
 
 #[cfg(test)]
