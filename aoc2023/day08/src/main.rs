@@ -19,4 +19,15 @@ fn main() {
     let value = compute_part2(&values);
     let timing2 = now2.elapsed().as_micros() as f64 / 1000.0;
     println!("Part 2: = {} in {} ms", value, timing2); // 16187743689077
+
+
+    let input = read_values_from_file("./input.txt");
+    let values = parse_input_hashmap(&input);
+
+    // Puzzle 2
+    let now2 = Instant::now();
+    let value = compute_part2_hashmap(&values);
+    let timing2 = now2.elapsed().as_micros() as f64 / 1000.0;
+    println!("Part 2 (using hashmap): = {} in {} ms", value, timing2); // 16187743689077
+
 }
