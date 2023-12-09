@@ -3,8 +3,32 @@
 
 ## Year 2023
 
-### [Day 01: ...](https://adventofcode.com/2023/day/1)
+### [Day 01: Trebuchet?](https://adventofcode.com/2023/day/1)
 [problem](https://adventofcode.com/2023/day/1) / [solution](./aoc2023/day01)
+
+### [Day 02: Cube Conundrum](https://adventofcode.com/2023/day/2)
+[problem](https://adventofcode.com/2023/day/2) / [solution](./aoc2023/day02)
+
+### [Day 03: Gear Ratios](https://adventofcode.com/2023/day/3)
+[problem](https://adventofcode.com/2023/day/3) / [solution](./aoc2023/day03)
+
+### [Day 04: Scratchcards](https://adventofcode.com/2023/day/4)
+[problem](https://adventofcode.com/2023/day/4) / [solution](./aoc2023/day04)
+
+### [Day 05: If You Give A Seed A Fertilizer](https://adventofcode.com/2023/day/5)
+[problem](https://adventofcode.com/2023/day/5) / [solution](./aoc2023/day05)
+
+### [Day 06: Wait For It](https://adventofcode.com/2023/day/6)
+[problem](https://adventofcode.com/2023/day/6) / [solution](./aoc2023/day06)
+
+### [Day 07: Camel Cards](https://adventofcode.com/2023/day/7)
+[problem](https://adventofcode.com/2023/day/7) / [solution](./aoc2023/day07)
+
+### [Day 08: Haunted Wasteland](https://adventofcode.com/2023/day/8)
+[problem](https://adventofcode.com/2023/day/8) / [solution](./aoc2023/day08)
+
+### [Day 09: Mirage Maintenance](https://adventofcode.com/2023/day/9)
+[problem](https://adventofcode.com/2023/day/9) / [solution](./aoc2023/day09)
 
 
 ## Year 2022
