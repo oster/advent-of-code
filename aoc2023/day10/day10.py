@@ -32,7 +32,7 @@ def parse_input(filename : str) -> tuple[tuple[int, int], list[list[str]]]:
 
 def print_grid(grid : list[list[str]]) -> None:
     for row in grid:
-        print(''.join(row).replace('│', '║').replace('─','═').replace('┌','╔').replace('┐','╗').replace('└','╚').replace('┘','╝').replace('.','█'))
+        print(''.join(row).replace('│', '║').replace('─','═').replace('┌','╔').replace('┐','╗').replace('└','╚').replace('┘','╝')) #.replace('.','█'))
     print()
 
 
@@ -59,6 +59,46 @@ def find_max_in_grid(numbers : list[list[int]]) -> int:
             if colum > max:
                 max = colum
     return max  
+
+
+from collections import deque
+def flood_pipe_bfs(y, x, step, h, w, g, n):
+
+    states = deque()
+    states.append((y, x, step))
+
+    while states:
+        (cy, cx, step) = states.popleft()
+
+        if cy < 0 or cy >= h or cx < 0 or cx >= w:
+            continue
+        if n[cy][cx] != 0 and n[cy][cx] <= step:
+            continue
+
+        n[cy][cx] = step
+        step = step + 1
+
+        match g[cy][cx]:
+            case '│':
+                states.append((cy+1, cx, step))
+                states.append((cy-1, cx, step))
+            case '─':
+                states.append((cy, cx+1, step))
+                states.append((cy, cx-1, step))
+            case '┌':
+                states.append((cy+1, cx, step))
+                states.append((cy, cx+1, step))
+            case '┐':
+                states.append((cy, cx-1, step))
+                states.append((cy+1, cx, step))
+            case '┘':
+                states.append((cy-1, cx, step))
+                states.append((cy, cx-1, step))
+            case '└':
+                states.append((cy, cx+1, step))
+                states.append((cy-1, cx, step))
+            case _:
+                continue        
 
 
 def flood_pipe(y, x, step, h, w, g, n):
@@ -101,16 +141,16 @@ def compute_main_pipe_loop(start : tuple[int,int], grid : list[list[str]]) -> li
     numbers[sy][sx] = -1
 
     if grid[sy][sx+1] in ['─', '┐', '┘']:
-        flood_pipe(sy, sx+1, step + 1, height, width, grid, numbers)
+        flood_pipe_bfs(sy, sx+1, step + 1, height, width, grid, numbers)
 
     if grid[sy][sx-1] in ['─','┌','└']:
-        flood_pipe(sy, sx-1, step + 1, height, width, grid, numbers)
+        flood_pipe_bfs(sy, sx-1, step + 1, height, width, grid, numbers)
 
     if grid[sy+1][sx] in ['│', '┘', '└']:
-        flood_pipe(sy+1, sx, step + 1, height, width, grid, numbers)
+        flood_pipe_bfs(sy+1, sx, step + 1, height, width, grid, numbers)
 
     if grid[sy-1][sx] in ['│', '┌', '┐']:
-        flood_pipe(sy+1, sx, step + 1, height, width, grid, numbers)
+        flood_pipe_bfs(sy+1, sx, step + 1, height, width, grid, numbers)
 
     return numbers
 
@@ -169,12 +209,37 @@ def scale_down(grid : list[list[str]]) -> list[list[str]]:
     return scaled_grid
 
 
+def flood_grid_bfs(y, x, height, width, grid):
+    states = deque()
+    states.append((y, x))
+
+    while states:
+        cy, cx = states.popleft()
+
+        if grid[cy][cx] == ' ':
+            continue
+
+        if grid[cy][cx] == '.':
+            grid[cy][cx] = ' ' #'█'
+
+        for nexty, nextx in [(cy+1, cx), (cy-1, cx), (cy, cx+1), (cy, cx-1)]:
+
+            if nexty < 0 or nexty >= height or nextx < 0 or nextx >= width:
+                continue
+
+            if grid[nexty][nextx] == '.':
+                states.append((nexty, nextx))
+
+
 def flood_grid(y, x, height, width, grid):
     if  x < 0 or x >= width or y < 0 or y >= height:
         return
 
+    if grid[y][x] == 'x':
+        return
+
     if grid[y][x] == '.':
-        grid[y][x] = ' ' #'█'
+        grid[y][x] = 'x' #'█'
 
     for nexty, nextx in [(y+1, x), (y-1, x), (y, x+1), (y, x-1)]:
         if nexty < 0 or nexty >= height or nextx < 0 or nextx >= width:
@@ -230,8 +295,8 @@ def part2(filename : str) -> int:
 
     scaled_height = len(scaled_grid)
     scaled_width = len(scaled_grid[0])
-    flood_grid(0, 0, scaled_height, scaled_width, scaled_grid)
-    print_grid(scaled_grid)
+    flood_grid_bfs(0, 0, scaled_height, scaled_width, scaled_grid)
+    # print_grid(scaled_grid)
 
     scaled_down_grid = scale_down(scaled_grid)
     # print_grid(scaled_down_grid)
@@ -241,8 +306,8 @@ def part2(filename : str) -> int:
     return challenge
 
 
-import sys
-sys.setrecursionlimit(20000)
+# import sys
+# sys.setrecursionlimit(20000)
 
 assert part1('./sample.txt') == 4
 assert part1('./sample2.txt') == 8
