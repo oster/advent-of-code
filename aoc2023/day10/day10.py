@@ -62,10 +62,22 @@ def find_max_in_grid(numbers : list[list[int]]) -> int:
 
 
 from collections import deque
-def flood_pipe_bfs(y, x, step, h, w, g, n):
-
+def flood_pipe_bfs(sy, sx, step, h, w, g, n):
     states = deque()
-    states.append((y, x, step))
+
+    if g[sy][sx+1] in ['─', '┐', '┘']:
+        states.append((sy, sx+1, 1))
+
+    if g[sy][sx-1] in ['─','┌','└']:
+        states.append((sy, sx-1, 1))
+
+    if g[sy+1][sx] in ['│', '┘', '└']:
+        states.append((sy+1, sx, 1))
+
+    if g[sy-1][sx] in ['│', '┌', '┐']:
+        states.append((sy-1, sx, 1))
+
+    # assert len(states) == 2
 
     while states:
         (cy, cx, step) = states.popleft()
@@ -136,21 +148,23 @@ def compute_main_pipe_loop(start : tuple[int,int], grid : list[list[str]]) -> li
     width = len(grid[0])
     numbers = [ [ 0 ] * width for _ in range(height) ]
 
-    step = 0
     sy, sx = start
     numbers[sy][sx] = -1
 
-    if grid[sy][sx+1] in ['─', '┐', '┘']:
-        flood_pipe_bfs(sy, sx+1, step + 1, height, width, grid, numbers)
+    flood_pipe_bfs(sy, sx, 1, height, width, grid, numbers)
 
-    if grid[sy][sx-1] in ['─','┌','└']:
-        flood_pipe_bfs(sy, sx-1, step + 1, height, width, grid, numbers)
+    # step = 0
+    # if grid[sy][sx+1] in ['─', '┐', '┘']:
+    #     flood_pipe(sy, sx+1, step + 1, height, width, grid, numbers)
 
-    if grid[sy+1][sx] in ['│', '┘', '└']:
-        flood_pipe_bfs(sy+1, sx, step + 1, height, width, grid, numbers)
+    # if grid[sy][sx-1] in ['─','┌','└']:
+    #     flood_pipe(sy, sx-1, step + 1, height, width, grid, numbers)
 
-    if grid[sy-1][sx] in ['│', '┌', '┐']:
-        flood_pipe_bfs(sy+1, sx, step + 1, height, width, grid, numbers)
+    # if grid[sy+1][sx] in ['│', '┘', '└']:
+    #     flood_pipe(sy+1, sx, step + 1, height, width, grid, numbers)
+
+    # if grid[sy-1][sx] in ['│', '┌', '┐']:
+    #     flood_pipe(sy-1, sx, step + 1, height, width, grid, numbers)
 
     return numbers
 
@@ -161,7 +175,6 @@ def part1(filename : str) -> int:
     challenge = find_max_in_grid(numbers)
 
     return challenge
-
 
 
 def scale_up(grid : list[list[str]]) -> list[list[str]]:
