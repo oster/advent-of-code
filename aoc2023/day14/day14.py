@@ -199,22 +199,29 @@ def part2(filename: str) -> int:
             sums_at_cycle[key] = cycle
         else:
             # print(f">> cycle {cycle:3} ({sums_of_cycle}) already seen at {sums_at_cycle[key]}")
-
-            # jumped = True
             if not jumped:
-                jumped = True
+                cycle_start = sums_at_cycle[key]
                 cycle_length = cycle - sums_at_cycle[key]
-                jumps_count = (1000000000 - cycle) // cycle_length
-                target_cycle = cycle + jumps_count * cycle_length
-                # print(f">> jumping to cycle {target_cycle} ({cycle} + {jumps_count} x {cycle_length})")
-                cycle = target_cycle + 1
+                cycle_to_found = cycle_start + (1000000000 - 1 - cycle) % cycle_length
+                key = (
+                    sum_cycle
+                    for sum_cycle, id_cycle in sums_at_cycle.items()
+                    if id_cycle == cycle_to_found
+                ).__next__()
+                return key[3]
+
+                # jumped = True
+                # cycle_length = cycle - sums_at_cycle[key]
+                # jumps_count = (1000000000 - cycle) // cycle_length
+                # target_cycle = cycle + jumps_count * cycle_length
+                # # print(f">> jumping to cycle {target_cycle} ({cycle} + {jumps_count} x {cycle_length})")
+                # cycle = target_cycle + 1
 
         cycle += 1
 
     return compute_sum_grid(grid)
 
 
-import time
 
 assert part1("./sample.txt") == 136
 assert part1("./sample2.txt") == 145
@@ -226,3 +233,11 @@ assert part1_alt("./input.txt") == 113078
 
 assert part2("./sample.txt") == 64
 assert part2("./input.txt") == 94255
+
+
+import timeit
+time_p1 = timeit.timeit(lambda: part1("./input.txt"), number=100)
+print("Time part 1 (mean time over 100 runs):", time_p1 / 100)
+
+time_p2 = timeit.timeit(lambda: part2("./input.txt"), number=10)
+print("Time part 2 (mean time over 10 runs):", time_p2 / 10)
