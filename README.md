@@ -24,11 +24,29 @@
 ### [Day 07: Camel Cards](https://adventofcode.com/2023/day/7)
 [problem](https://adventofcode.com/2023/day/7) / [solution](./aoc2023/day07)
 
+
 ### [Day 08: Haunted Wasteland](https://adventofcode.com/2023/day/8)
 [problem](https://adventofcode.com/2023/day/8) / [solution](./aoc2023/day08)
 
 ### [Day 09: Mirage Maintenance](https://adventofcode.com/2023/day/9)
 [problem](https://adventofcode.com/2023/day/9) / [solution](./aoc2023/day09)
+
+### [Day 10: Pipe Maze](https://adventofcode.com/2023/day/10)
+[problem](https://adventofcode.com/2023/day/10) / [solution](./aoc2023/day10)
+
+### [Day 11: Cosmic Expansion](https://adventofcode.com/2023/day/11)
+[problem](https://adventofcode.com/2023/day/11) / [solution](./aoc2023/day11)
+
+### [Day 12: Hot Springs](https://adventofcode.com/2023/day/12)
+[problem](https://adventofcode.com/2023/day/12) / [solution](./aoc2023/day12)
+
+### [Day 12: Point of Incidence](https://adventofcode.com/2023/day/13)
+[problem](https://adventofcode.com/2023/day/13) / [solution](./aoc2023/day13)
+
+### [Day 14: Parabolic Reflector Dish](https://adventofcode.com/2023/day/14)
+[problem](https://adventofcode.com/2023/day/14) / [solution](./aoc2023/day14)
+
+
 
 
 ## Year 2022
