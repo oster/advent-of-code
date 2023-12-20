@@ -1,8 +1,6 @@
 from collections import deque
-from typing import Any, Callable, Iterator
-from functools import partial
-import sys
 import math
+from typing import Any
 
 
 def die(msg: str):
@@ -10,22 +8,11 @@ def die(msg: str):
     raise Exception(msg)
 
 
-def pairwise(iterable):
-    a = iter(iterable)
-    return zip(a, a)
-
-
-def grouped(iterable, size):
-    a = iter(iterable)
-    return zip(*(a for _ in range(size)))
-
-
-def window(iterable):
-    return zip(iterable, iterable[1:])
+type Component = dict[str, Any]
 
 
 # broadcaster
-def create_broadcaster(name: str, output: list[str]):
+def create_broadcaster(name: str, output: list[str]) -> Component:
     return {
         "type": "broadcaster",
         "name": name,
@@ -34,18 +21,17 @@ def create_broadcaster(name: str, output: list[str]):
 
 
 # %
-def create_flipflop(name: str, output: list[str]):
+def create_flipflop(name: str, output: list[str]) -> Component:
     return {
         "type": "flipflop",
         "name": name,
-        # "input": [],
         "output": output,
         "state": False,
     }
 
 
 #
-def create_conjunction(name: str, output: list[str]):
+def create_conjunction(name: str, output: list[str]) -> Component:
     return {
         "type": "conjunction",
         "name": name,
@@ -54,7 +40,7 @@ def create_conjunction(name: str, output: list[str]):
     }
 
 
-def create_dummy(name: str):
+def create_dummy(name: str) -> Component:
     return {
         "type": "dummy",
         "name": name,
@@ -62,16 +48,7 @@ def create_dummy(name: str):
     }
 
 
-"""
-broadcaster -> a, b, c
-%a -> b
-%b -> c
-%c -> inv
-&inv -> a
-"""
-
-
-def read_input_part1(filename: str) -> dict[str, dict]:
+def read_input_part1(filename: str) -> dict[str, Component]:
     components = {}
     with open(filename, "r") as input_file:
         for line in input_file.readlines():
@@ -89,7 +66,7 @@ def read_input_part1(filename: str) -> dict[str, dict]:
     return components
 
 
-def dump(components):
+def dump(components: dict[str, Component]):
     for component in components.values():
         if component["type"] == "conjunction":
             print(
@@ -193,8 +170,6 @@ def part2(filename: str) -> int:
             if connected_to["type"] == "conjunction":
                 connected_to["mem"][component["name"]] = False
 
-    low_pulses = 0
-    high_pulses = 0
     pulses = deque()
 
     last_vf = 0
@@ -202,7 +177,6 @@ def part2(filename: str) -> int:
     last_dh = 0
     last_rn = 0
 
-    # for count in range(1000):
     count = 0
     while True:
         count += 1
@@ -216,28 +190,20 @@ def part2(filename: str) -> int:
             # when jz has received high pulses from all its inputs (vf, mk, dh, rn)
             # this is visible in the graph, using to_dot.py on input.txt
             if dest == "jz":
-                if src == "vf" and pulse_level:
-                    # print(f'count vf: {count-last_vf}')
+                if src == "vf" and pulse_level:  # print(f'count vf: {count-last_vf}')
                     last_vf = count
                 if src == "mk" and pulse_level:
-                    # print(f'count mk: {count-last_mk}')
                     last_mk = count
                 if src == "dh" and pulse_level:
-                    # print(f'count dh: {count-last_dh}')
                     last_dh = count
                 if src == "rn" and pulse_level:
-                    # print(f'count rn: {count-last_rn}')
                     last_rn = count
 
                 if last_vf > 0 and last_mk > 0 and last_dh > 0 and last_rn > 0:
                     # print(f'last_vf: {last_vf}, last_mk: {last_mk}, last_dh: {last_dh}, last_rn: {last_rn}')
-                    # print(f'lcm: {lcms([last_vf, last_mk, last_dh, last_rn])}')
-                    return lcms([last_vf, last_mk, last_dh, last_rn])
-
-            if pulse_level:
-                high_pulses += 1
-            else:
-                low_pulses += 1
+                    # return lcms([last_vf, last_mk, last_dh, last_rn])
+                    # since they are prime numbers
+                    return last_vf * last_mk * last_dh * last_rn
 
             component = components[dest]
 
