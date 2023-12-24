@@ -6,6 +6,7 @@ type Pos2D = tuple[float, float]
 type Velocity2D = tuple[float, float]
 type Eq = tuple[float, float]
 
+
 def read_input(filename: str) -> list[tuple[Pos2D, Velocity2D]]:
     data = []
     with open(filename, "r") as input_file:
@@ -17,6 +18,7 @@ def read_input(filename: str) -> list[tuple[Pos2D, Velocity2D]]:
             vel2D = (vel[0], vel[1])
             data.append((pos2D, vel2D))
     return data
+
 
 def get_line_equation(p1: Pos2D, v1: Velocity2D) -> Eq:
     p1_x, p1_y = p1
@@ -141,55 +143,65 @@ def part1(filename: str, min_value: int, max_value: int) -> int:
         for idx2, (pC, pD) in enumerate(two_points[idx1 + 1 :]):
             id2 = idx1 + idx2 + 1
 
-            print(f"Hailstone A: {data[idx1]}")
-            print(f"Hailstone B: {data[id2]}")
+            # print(f"Hailstone A: {data[idx1]}")
+            # print(f"Hailstone B: {data[id2]}")
             if idx1 == id2:
                 continue
+
             intersection = get_intersection_point(pA, pB, pC, pD)
-            if intersection is None:
-                print(
-                    f"Hailstones' paths are parallel; they never intersect."
-                )
-            else:
+            if intersection is not None:
                 is_past_A = is_past_point(intersection, data[idx1], lines[idx1])
                 is_past_B = is_past_point(intersection, data[id2], lines[id2])
+                if (
+                    not is_past_A
+                    and not is_past_B
+                    and inside(intersection, min_value, max_value)
+                ):
+                    intersect_count += 1
+                    continue
 
-                if is_past_A:
-                    if is_past_B:
-                        print(
-                            "Hailstones' paths crossed in the past for both hailstones."
-                        )
-                    else:
-                        print(f"Hailstones' paths crossed in the past for hailstone A.")
-                elif is_past_B:
-                    print(f"Hailstones' paths crossed in the past for hailstone B.")
-                else:
-                    if inside(intersection, min_value, max_value):
-                        print(
-                            f"Hailstones' paths will cross inside the test area (at x={intersection[0]:.3f}, y={intersection[1]:.3f})."
-                        )
-                        intersect_count += 1
-                    else:
-                        print(
-                            f"Hailstones' paths will cross outside the test area (at x={intersection[0]:.3f}, y={intersection[1]:.3f})."
-                        )
+            # if intersection is None:
+            #     print(
+            #         f"Hailstones' paths are parallel; they never intersect."
+            #     )
+            # else:
+            #     is_past_A = is_past_point(intersection, data[idx1], lines[idx1])
+            #     is_past_B = is_past_point(intersection, data[id2], lines[id2])
 
-            print()
+            #     if is_past_A:
+            #         if is_past_B:
+            #             print(
+            #                 "Hailstones' paths crossed in the past for both hailstones."
+            #             )
+            #         else:
+            #             print(f"Hailstones' paths crossed in the past for hailstone A.")
+            #     elif is_past_B:
+            #         print(f"Hailstones' paths crossed in the past for hailstone B.")
+            #     else:
+            #         if inside(intersection, min_value, max_value):
+            #             print(
+            #                 f"Hailstones' paths will cross inside the test area (at x={intersection[0]:.3f}, y={intersection[1]:.3f})."
+            #             )
+            #             intersect_count += 1
+            #         else:
+            #             print(
+            #                 f"Hailstones' paths will cross outside the test area (at x={intersection[0]:.3f}, y={intersection[1]:.3f})."
+            #             )
+            # print()
 
-    print(f"Total number of intersections: {intersect_count}")
+    # print(f"Total number of intersections: {intersect_count}")
     return intersect_count
 
 
 assert part1("./sample.txt", 7, 27) == 2
-assert (
-    part1("./input.txt", 200000000000000, 400000000000000) == 31208
-)
+assert part1("./input.txt", 200000000000000, 400000000000000) == 31208
 
 # print(part1("./sample.txt", 7, 27))
 
 
 type Pos3D = tuple[float, float, float]
 type Velocity3D = tuple[float, float, float]
+
 
 def read_input_part2(filename: str) -> list[tuple[Pos3D, Velocity3D]]:
     data = []
@@ -207,32 +219,39 @@ def read_input_part2(filename: str) -> list[tuple[Pos3D, Velocity3D]]:
 #     v2_x, v2_y, v2_z = v2
 
 #     i = v1_x / v2_x
-#     j = v1_y / v2_y 
-#     k = v1_z / v2_z 
+#     j = v1_y / v2_y
+#     k = v1_z / v2_z
 
-#     return i == j == k 
+#     return i == j == k
 
 from z3 import Real, Solver
+
 
 def part2(filename: str) -> int:
     lines3D = read_input_part2(filename)
 
     s = Solver()
 
-    target_x = Real('target_x')
-    target_y = Real('target_y')
-    target_z = Real('target_z')
-    target_vx = Real('target_vx')
-    target_vy = Real('target_vy')
-    target_vz = Real('target_vz')
+    target_x = Real("target_x")
+    target_y = Real("target_y")
+    target_z = Real("target_z")
+    target_vx = Real("target_vx")
+    target_vy = Real("target_vy")
+    target_vz = Real("target_vz")
 
-    for idx, ((point_x, point_y, point_z), (point_vx, point_vy, point_vz)) in enumerate(lines3D):
-        t = Real(f't{idx}')
-        s.add(target_x + target_vx * t == point_x + point_vx * t)
-        s.add(target_y + target_vy * t == point_y + point_vy * t)
-        s.add(target_z + target_vz * t == point_z + point_vz * t)
+    lines3D = lines3D[:3]  # we onlt need 3 lines to solve the problem
+    for idx, ((point_x, point_y, point_z), (point_vx, point_vy, point_vz)) in enumerate(
+        lines3D
+    ):
+        t = Real(f"t{idx}")
+        s.add(
+            target_x + target_vx * t == point_x + point_vx * t,
+            target_y + target_vy * t == point_y + point_vy * t,
+            target_z + target_vz * t == point_z + point_vz * t,
+        )
 
-    s.check()
+    if s.check() == "unsat":
+        die("Cannot solve the problem.")
     m = s.model()
 
     res = m[target_x].as_long() + m[target_y].as_long() + m[target_z].as_long()
