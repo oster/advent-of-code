@@ -47,6 +47,39 @@
 [problem](https://adventofcode.com/2023/day/14) / [solution](./aoc2023/day14)
 
 
+### [Day 15: Lens Library](https://adventofcode.com/2023/day/15)
+[problem](https://adventofcode.com/2023/day/15) / [solution](./aoc2023/day15)
+
+### [Day 16: The Floor Will Be Lava](https://adventofcode.com/2023/day/16)
+[problem](https://adventofcode.com/2023/day/16) / [solution](./aoc2023/day16)
+
+### [Day 17: Clumsy Crucible](https://adventofcode.com/2023/day/17)
+[problem](https://adventofcode.com/2023/day/17) / [solution](./aoc2023/day17)
+
+### [Day 18: Lavaduct Lagoon](https://adventofcode.com/2023/day/18)
+[problem](https://adventofcode.com/2023/day/18) / [solution](./aoc2023/day18)
+
+### [Day 19: Aplenty](https://adventofcode.com/2023/day/19)
+[problem](https://adventofcode.com/2023/day/19) / [solution](./aoc2023/day19)
+
+### [Day 20: Pulse Propagation](https://adventofcode.com/2023/day/20)
+[problem](https://adventofcode.com/2023/day/20) / [solution](./aoc2023/day20)
+
+### [Day 21: Step Counter](https://adventofcode.com/2023/day/21)
+[problem](https://adventofcode.com/2023/day/21) / [solution](./aoc2023/day21)
+
+
+### [Day 22: Sand Slabs](https://adventofcode.com/2023/day/22)
+[problem](https://adventofcode.com/2023/day/22) / [solution](./aoc2023/day22)
+
+### [Day 23: A Long Walk](https://adventofcode.com/2023/day/23)
+[problem](https://adventofcode.com/2023/day/23) / [solution](./aoc2023/day23)
+
+### [Day 24: Never Tell Me The Odds](https://adventofcode.com/2023/day/24)
+[problem](https://adventofcode.com/2023/day/24) / [solution](./aoc2023/day24)
+
+### [Day 25: ???](https://adventofcode.com/2023/day/25)
+[problem](https://adventofcode.com/2023/day/25) / [solution](./aoc2023/day25)
 
 
 ## Year 2022
