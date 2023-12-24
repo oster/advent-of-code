@@ -148,7 +148,7 @@ def part1(filename: str, min_value: int, max_value: int) -> int:
             intersection = get_intersection_point(pA, pB, pC, pD)
             if intersection is None:
                 print(
-                    f"Hailstones' paths will cross outside the test area; or they never intersect."
+                    f"Hailstones' paths are parallel; they never intersect."
                 )
             else:
                 is_past_A = is_past_point(intersection, data[idx1], lines[idx1])
@@ -180,11 +180,64 @@ def part1(filename: str, min_value: int, max_value: int) -> int:
     return intersect_count
 
 
-# assert part1("./sample.txt", 7, 27) == 2
-# assert (
-#     part1("./input.txt", 200000000000000, 400000000000000) == 31208
-# )
+assert part1("./sample.txt", 7, 27) == 2
+assert (
+    part1("./input.txt", 200000000000000, 400000000000000) == 31208
+)
 
-# print(part1("./sample.txt", 7, 27))
-# assert part2("./sample.txt") == 154
-# assert part2("./input.txt") == 6598
+print(part1("./sample.txt", 7, 27))
+
+
+type Pos3D = tuple[float, float, float]
+type Velocity3D = tuple[float, float, float]
+
+def read_input_part2(filename: str) -> list[tuple[Pos3D, Velocity3D]]:
+    data = []
+    with open(filename, "r") as input_file:
+        for line in input_file.readlines():
+            line = line.rstrip().split(" @ ")
+            pos = tuple(map(float, line[0].split(", ")))
+            vel = tuple(map(float, line[1].split(", ")))
+            data.append((pos, vel))
+    return data
+
+
+# def colineaires(v1: Velocity3D, v2: Velocity3D) -> bool:
+#     v1_x, v1_y, v1_z = v1
+#     v2_x, v2_y, v2_z = v2
+
+#     i = v1_x / v2_x
+#     j = v1_y / v2_y 
+#     k = v1_z / v2_z 
+
+#     return i == j == k 
+
+from z3 import Real, Solver
+
+def part2(filename: str) -> int:
+    lines3D = read_input_part2(filename)
+
+    s = Solver()
+
+    target_x = Real('target_x')
+    target_y = Real('target_y')
+    target_z = Real('target_z')
+    target_vx = Real('target_vx')
+    target_vy = Real('target_vy')
+    target_vz = Real('target_vz')
+
+    for idx, ((point_x, point_y, point_z), (point_vx, point_vy, point_vz)) in enumerate(lines3D):
+        t = Real(f't{idx}')
+        s.add(target_x + target_vx * t == point_x + point_vx * t)
+        s.add(target_y + target_vy * t == point_y + point_vy * t)
+        s.add(target_z + target_vz * t == point_z + point_vz * t)
+
+    s.check()
+    m = s.model()
+
+    res = m[target_x].as_long() + m[target_y].as_long() + m[target_z].as_long()
+    return res
+
+
+assert part2("./sample.txt") == 47
+assert part2("./input.txt") == 580043851566574
