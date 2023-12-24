@@ -185,7 +185,7 @@ assert (
     part1("./input.txt", 200000000000000, 400000000000000) == 31208
 )
 
-print(part1("./sample.txt", 7, 27))
+# print(part1("./sample.txt", 7, 27))
 
 
 type Pos3D = tuple[float, float, float]
