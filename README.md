@@ -3,6 +3,9 @@
 
 ## Year 2023
 
+![](./figs/aoc-2023-completed.png)
+
+
 ### [Day 01: Trebuchet?](https://adventofcode.com/2023/day/1)
 [problem](https://adventofcode.com/2023/day/1) / [solution](./aoc2023/day01)
 
@@ -78,7 +81,7 @@
 ### [Day 24: Never Tell Me The Odds](https://adventofcode.com/2023/day/24)
 [problem](https://adventofcode.com/2023/day/24) / [solution](./aoc2023/day24)
 
-### [Day 25: ???](https://adventofcode.com/2023/day/25)
+### [Day 25: Snowverload](https://adventofcode.com/2023/day/25)
 [problem](https://adventofcode.com/2023/day/25) / [solution](./aoc2023/day25)
 
 
