@@ -1,6 +1,12 @@
 # Advent Of Code
 
 
+## Year 2024
+
+### [Day 01: Day 1: Historian Hysteria](https://adventofcode.com/2024/day/1)
+[problem](https://adventofcode.com/2024/day/1) / [solution](./aoc2024/day01)
+
+
 ## Year 2023
 
 ![](./figs/aoc-2023-completed.png)
