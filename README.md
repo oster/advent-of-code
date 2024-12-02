@@ -3,8 +3,11 @@
 
 ## Year 2024
 
-### [Day 01: Day 1: Historian Hysteria](https://adventofcode.com/2024/day/1)
+### [Day 01: Historian Hysteria](https://adventofcode.com/2024/day/1)
 [problem](https://adventofcode.com/2024/day/1) / [solution](./aoc2024/day01)
+
+### [Day 02: Red-Nosed Reports](https://adventofcode.com/2024/day/2)
+[problem](https://adventofcode.com/2024/day/2) / [solution](./aoc2024/day02)
 
 
 ## Year 2023
