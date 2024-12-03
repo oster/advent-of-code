@@ -48,6 +48,15 @@ pub fn eight_neighbors(x : usize, y:usize, height : usize, width : usize) -> Vec
 }
 
 
+
+// pub fn eight_neighbors2(x : usize, y:usize, height : usize, width : usize) -> Vec<(usize, usize)> {
+//     let x = x as i32;
+//     let y = y as i32;
+//     vec![
+//         (x-1, y-1), (x, y-1), (x+1, y-1), (x-1, y), (x+1, y), (x-1, y+1), (x, y+1), (x+1, y+1),
+//     ].into_iter().filter(|&(posx, posy)| posx >= 0 && posx < width as i32 && posy >= 0 && posy < height as i32).map(|(a,b)| (a as usize, b as usize)).collect()
+// }
+
 pub fn is_connected(x:usize , y : usize, schema : &Vec<Vec<char>>, height : usize, width : usize) -> bool {
     // for (next_x, next_y) in eight_neighbors(x, y, height, width) {
     //     if is_symbol(schema[next_y][next_x]) {
