@@ -9,6 +9,9 @@
 ### [Day 02: Red-Nosed Reports](https://adventofcode.com/2024/day/2)
 [problem](https://adventofcode.com/2024/day/2) / [solution](./aoc2024/day02)
 
+### [Day 03: Mull It Over](https://adventofcode.com/2024/day/3)
+[problem](https://adventofcode.com/2024/day/3) / [solution](./aoc2024/day03)
+
 
 ## Year 2023
 
