@@ -1,4 +1,3 @@
-from typing import Generator
 from icecream import ic
 
 
@@ -43,12 +42,19 @@ def print_remaining_grid(grid: Grid, mask: Grid, grid_size: int):
 def part1(filename: str) -> int:
     grid, size = read_data(filename)
 
-    count = 0
-    for y in range(size):
-        for x in range(size):
-            count += find_xmas(grid, size, x, y)
+    # count = 0
+    # for y in range(size):
+    #     for x in range(size):
+    #         count += find_xmas(grid, size, x, y)
+    # return count
 
-    return count
+    return sum(
+        (
+            find_xmas(grid, size, x, y)
+            for y in range(size)
+            for x in range(size)
+        )
+    )
 
 
 def eight_directions() -> list[Pos]:
@@ -78,7 +84,6 @@ def find_xmas(grid: Grid, size: int, x: int, y: int) -> int:
             for direction in eight_directions()
         )
     )
-
 
 def find_mas_cross(grid: Grid, size: int, x: int, y: int) -> bool:
     return (
@@ -130,6 +135,36 @@ def part2(filename: str) -> int:
         )
     )
 
+
+'''
+    alternative solution that re-use some of the code from part1
+'''
+
+def diag_directions() -> list[Pos]:
+    return [ (1, 1), (-1, -1), (1, -1), (-1, 1)]
+
+
+def part2_alt(filename: str) -> int:
+    grid, size = read_data(filename)
+
+    xmas = "MAS"
+
+    matching_positions = []
+    for y in range(size):
+        for x in range(size):
+            for direction in diag_directions():
+                if all(grid.get((x + k * direction[0], y + k * direction[1])) == xmas[k] for k in range(len(xmas))):
+                    middle_x, middle_y = x + direction[0], y + direction[1]
+                    if grid[middle_x, middle_y] == "A":
+                        matching_positions.append((middle_x, middle_y))
+
+    occurences = {}
+    for p in matching_positions:
+        occurences[p] = occurences.get(p, 0) + 1
+
+    duplicate_positions = set(p for p in occurences if occurences[p] == 2)
+
+    return len(duplicate_positions)
 
 # ic.disable()
 
