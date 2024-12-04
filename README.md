@@ -12,6 +12,9 @@
 ### [Day 03: Mull It Over](https://adventofcode.com/2024/day/3)
 [problem](https://adventofcode.com/2024/day/3) / [solution](./aoc2024/day03)
 
+### [Day 04: Ceres Search](https://adventofcode.com/2024/day/4)
+[problem](https://adventofcode.com/2024/day/4) / [solution](./aoc2024/day04)
+
 
 ## Year 2023
 
