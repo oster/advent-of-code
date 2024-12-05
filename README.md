@@ -15,6 +15,9 @@
 ### [Day 04: Ceres Search](https://adventofcode.com/2024/day/4)
 [problem](https://adventofcode.com/2024/day/4) / [solution](./aoc2024/day04)
 
+### [Day 05: Print Queue](https://adventofcode.com/2024/day/5)
+[problem](https://adventofcode.com/2024/day/5) / [solution](./aoc2024/day05)
+
 
 ## Year 2023
 
