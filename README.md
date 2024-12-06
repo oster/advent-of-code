@@ -18,6 +18,9 @@
 ### [Day 05: Print Queue](https://adventofcode.com/2024/day/5)
 [problem](https://adventofcode.com/2024/day/5) / [solution](./aoc2024/day05)
 
+### [Day 06: Guard Gallivant](https://adventofcode.com/2024/day/6)
+[problem](https://adventofcode.com/2024/day/6) / [solution](./aoc2024/day06)
+
 
 ## Year 2023
 
