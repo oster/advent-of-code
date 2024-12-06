@@ -14,8 +14,22 @@ class Direction(IntEnum):
     EXIT = 666
 
 
-type Pos = tuple[int, int]
 type Grid = dict[Pos, str]
+type Pos = tuple[int, int]
+
+
+def one_step(pos: Pos, dir: Direction) -> Pos:
+    x, y = pos
+    match dir:
+        case Direction.EAST:
+            return (x + 1, y)
+        case Direction.SOUTH:
+            return (x, y + 1)
+        case Direction.WEST:
+            return (x - 1, y)
+        case Direction.NORTH:
+            return (x, y - 1)
+    return (x, y)
 
 
 SYMBOL_TO_DIRECTION = {
@@ -27,15 +41,15 @@ SYMBOL_TO_DIRECTION = {
 
 def read_input(filename: str) -> tuple[Grid, int, Pos, Direction]:
     grid = {}
-    grid_size = 0
+    grid_size: int = 0
     with open(filename, "r") as input_file:
         for y, line in enumerate(input_file.readlines()):
             grid_size += 1
             for x, c in enumerate(line.strip()):
                 if c == '#':
                     grid[x, y] = c
-                elif c in ['<', '>', '^', 'v']:
-                    guard_pos = (x, y)
+                elif c in SYMBOL_TO_DIRECTION:
+                    guard_pos = x, y
                     guard_dir = SYMBOL_TO_DIRECTION[c]
 
     return grid, grid_size, guard_pos, guard_dir
@@ -50,20 +64,8 @@ def print_grid(grid: Grid, grid_size: int):
 
 
 def next_pos(pos: Pos, dir: Direction, grid: Grid, size: int) -> tuple[Pos, Direction]:
-    new_p = pos
-    x, y = pos
-
-    match dir:
-        case Direction.EAST:
-            new_p = x + 1, y
-        case Direction.SOUTH:
-            new_p = x, y + 1
-        case Direction.WEST:
-            new_p = x - 1, y
-        case Direction.NORTH:
-            new_p = x, y - 1
-
-    match grid.get(new_p):
+    new_pos = one_step(pos, dir)
+    match grid.get(new_pos):
         case '#':
             match dir:
                 case Direction.EAST:
@@ -75,11 +77,12 @@ def next_pos(pos: Pos, dir: Direction, grid: Grid, size: int) -> tuple[Pos, Dire
                 case Direction.NORTH:
                     return pos, Direction.EAST
 
-    return new_p, dir
+    return new_pos, dir
 
 
 def in_grid(pos: Pos, size: int) -> bool:
-    return pos[0] >= 0 and pos[0] < size and pos[1] >= 0 and pos[1] < size
+    x, y = pos
+    return x >= 0 and x < size and y >= 0 and y < size
 
 
 def get_walk_path(guard_pos: Pos, guard_dir: Direction, grid: Grid, size: int) -> set[Pos]:
@@ -125,17 +128,26 @@ def part2_brute(filename: str) -> int:
     return cycle_count
 
 
+def it_may_create_a_cycle(ox, oy, guard_pos, guard_dir, grid, size, obstacles_by_x, obstacles_by_y) -> bool:
+    return obstacles_by_x.get(ox - 1) or obstacles_by_x.get(ox + 1) or obstacles_by_y.get(oy - 1) or obstacles_by_y.get(oy + 1)
+
+
 def part2(filename: str) -> int:
     grid, size, guard_pos, guard_dir = read_input(filename)
 
+    # obstacles_by_x = { x : True for  x,_ in grid.keys() }
+    # obstacles_by_y = { y : True for  y,_ in grid.keys() }
+
     cycle_count = 0
-    for (ox,oy) in get_walk_path(guard_pos, guard_dir, grid, size):
-        if (ox, oy) != guard_pos and grid.get((ox, oy)) is None:
-            grid[ox, oy] = '#'
+    for pos in get_walk_path(guard_pos, guard_dir, grid, size):
+        if pos != guard_pos and grid.get(pos) is None:
+            # if it_may_create_a_cycle(*pos, guard_pos, guard_dir, grid, size, obstacles_by_x, obstacles_by_y):
+            grid[pos] = '#'
             if got_cycle(guard_pos, guard_dir, grid, size):
                 cycle_count += 1
-            del grid[ox, oy]
+            del grid[pos]
     return cycle_count
+
 
 
 assert ic(part1('./sample.txt')) == 41
