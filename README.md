@@ -21,6 +21,9 @@
 ### [Day 06: Guard Gallivant](https://adventofcode.com/2024/day/6)
 [problem](https://adventofcode.com/2024/day/6) / [solution](./aoc2024/day06)
 
+### [Day 07: Bridge Repair](https://adventofcode.com/2024/day/7)
+[problem](https://adventofcode.com/2024/day/7) / [solution](./aoc2024/day07)
+
 
 ## Year 2023
 
