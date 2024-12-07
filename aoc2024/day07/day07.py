@@ -12,13 +12,9 @@ def solve_rec(challenge: int, values: tuple[int, ...], depth: int, current: int)
     if current > challenge:
         return False
     
-    if solve_rec(challenge, values, depth + 1, current * values[depth]):
-        return True
-
-    if solve_rec(challenge, values, depth + 1, current + values[depth]):
-        return True
-
-    return False             
+    return ( solve_rec(challenge, values, depth + 1, current * values[depth]) 
+            or solve_rec(challenge, values, depth + 1, current + values[depth])
+    )
 
 
 def part1(filename: str) -> int:
@@ -46,16 +42,10 @@ def solve2_rec(challenge: int, values: tuple[int, ...], depth: int, current: int
     #     if solve2_rec(challenge, values, depth + 1, op(current, values[depth])):
     #         return True
 
-    if solve2_rec(challenge, values, depth + 1, current * values[depth]):
-        return True
-
-    if solve2_rec(challenge, values, depth + 1, current + values[depth]):
-        return True
-
-    if solve2_rec(challenge, values, depth + 1, concat_op(current, values[depth])):
-        return True
-
-    return False             
+    return ( solve2_rec(challenge, values, depth + 1, current * values[depth]) 
+            or solve2_rec(challenge, values, depth + 1, current + values[depth]) 
+            or solve2_rec(challenge, values, depth + 1, concat_op(current, values[depth]))
+    )
 
 
 def part2(filename: str) -> int:
