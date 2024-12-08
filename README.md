@@ -24,6 +24,9 @@
 ### [Day 07: Bridge Repair](https://adventofcode.com/2024/day/7)
 [problem](https://adventofcode.com/2024/day/7) / [solution](./aoc2024/day07)
 
+### [Day 08: Resonant Collinearity](https://adventofcode.com/2024/day/8)
+[problem](https://adventofcode.com/2024/day/8) / [solution](./aoc2024/day08)
+
 
 ## Year 2023
 
