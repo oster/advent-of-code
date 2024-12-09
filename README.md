@@ -27,6 +27,9 @@
 ### [Day 08: Resonant Collinearity](https://adventofcode.com/2024/day/8)
 [problem](https://adventofcode.com/2024/day/8) / [solution](./aoc2024/day08)
 
+### [Day 09: Disk Fragmenter](https://adventofcode.com/2024/day/9)
+[problem](https://adventofcode.com/2024/day/9) / [solution](./aoc2024/day09)
+
 
 ## Year 2023
 
