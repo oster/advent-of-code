@@ -30,6 +30,9 @@
 ### [Day 09: Disk Fragmenter](https://adventofcode.com/2024/day/9)
 [problem](https://adventofcode.com/2024/day/9) / [solution](./aoc2024/day09)
 
+### [Day 09: Hoof It](https://adventofcode.com/2024/day/10)
+[problem](https://adventofcode.com/2024/day/10) / [solution](./aoc2024/day10)
+
 
 ## Year 2023
 
