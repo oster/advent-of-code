@@ -21,31 +21,6 @@ def window2(iterable):
         last = current
 
 
-
-def sort_points_clockwise(points):
-    """
-    Sort a list of points (x, y) in clockwise order.
-
-    Args:
-        points (list of tuples): List of (x, y) coordinates.
-
-    Returns:
-        list of tuples: Sorted list of points in clockwise order.
-    """
-    # Calculate the centroid as the center point
-    center_x = sum(x for x, y in points) / len(points)
-    center_y = sum(y for x, y in points) / len(points)
-
-    # Define a function to calculate the angle
-    def angle_from_center(point):
-        x, y = point
-        return math.atan2(y - center_y, x - center_x)
-
-    # Sort points by angle in descending order for clockwise order
-    sorted_points = sorted(points, key=angle_from_center, reverse=True)
-    return sorted_points
-
-
 class Side(IntEnum):
     TOP = 0
     RIGHT = 1
@@ -80,13 +55,10 @@ class Region:
         self.sides = set()
 
 
-    # def add_to_boundaries(pos: Pos):
-
     def add_plot(self, pos: Pos):
         x, y = pos
         self.plots.add(pos)
         self.add_edges(pos)
-
 
     def add_edges(self, pos: Pos):
         x, y = pos
