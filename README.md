@@ -24,6 +24,7 @@
 ### [Day 07: Bridge Repair](https://adventofcode.com/2024/day/7)
 [problem](https://adventofcode.com/2024/day/7) / [solution](./aoc2024/day07)
 
+
 ### [Day 08: Resonant Collinearity](https://adventofcode.com/2024/day/8)
 [problem](https://adventofcode.com/2024/day/8) / [solution](./aoc2024/day08)
 
@@ -35,6 +36,12 @@
 
 ### [Day 11: Plutonian Pebbles](https://adventofcode.com/2024/day/11)
 [problem](https://adventofcode.com/2024/day/11) / [solution](./aoc2024/day11)
+
+### [Day 12: Garden Groups](https://adventofcode.com/2024/day/12)
+[problem](https://adventofcode.com/2024/day/12) / [solution](./aoc2024/day12)
+
+### [Day 13: Claw Contraption](https://adventofcode.com/2024/day/13)
+[problem](https://adventofcode.com/2024/day/13) / [solution](./aoc2024/day13)
 
 
 ## Year 2023
