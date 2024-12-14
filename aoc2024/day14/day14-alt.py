@@ -141,10 +141,33 @@ def part2(filename: str, width: int, height: int) -> int:
     return -1
 
 
+def part2_minfactor(filename: str, width: int, height: int) -> int:
+    robots = read_data(filename)
+    for r in robots:
+        r.max_width = width
+        r.max_height = height
+
+    min_factor = float("inf")
+    min_time = 0
+
+    time = 0
+    max_time = 10000
+    while time < max_time:
+        time += 1
+        for r in robots:
+            r.move()
+        factor = security_factor(count_by_quadran(robots, width, height))
+        if factor < min_factor:
+            min_factor = factor
+            min_time = time
+    return min_time
+
+
 assert ic(part1("./sample.txt", 11, 7)) == 12
 assert ic(part1("./input.txt", 101, 103)) == 221616000
 
 assert ic(part2("./input.txt", 101, 103)) == 7572
+assert ic(part2_minfactor("./input.txt", 101, 103)) == 7572
 
 # z = part2('./input.txt', 101, 103)
 # robots = read_data('./input.txt')
