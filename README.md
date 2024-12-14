@@ -43,6 +43,9 @@
 ### [Day 13: Claw Contraption](https://adventofcode.com/2024/day/13)
 [problem](https://adventofcode.com/2024/day/13) / [solution](./aoc2024/day13)
 
+### [Day 14: Restroom Redoubt](https://adventofcode.com/2024/day/14)
+[problem](https://adventofcode.com/2024/day/14) / [solution](./aoc2024/day14)
+
 
 ## Year 2023
 
