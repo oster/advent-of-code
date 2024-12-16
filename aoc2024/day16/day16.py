@@ -2,7 +2,7 @@ import heapq
 from typing import Generator
 from icecream import ic
 from enum import IntEnum
-from collections import defaultdict
+from collections import defaultdict, deque
 
 # from typing import NewType
 
@@ -154,7 +154,6 @@ def compute_min_path(
             new_cost = best_cost_for_pos + cost
             if new_state not in cost_so_far or new_cost <= cost_so_far[new_state]:
                 cost_so_far[new_state] = new_cost
-
                 new_pos, new_dir = new_state
                 came_from[new_pos, new_dir, new_cost].add(
                     (pos, dir, best_cost_for_pos)
@@ -195,17 +194,21 @@ def part2(filename: str) -> int:
 
     visited_tiles: set[Pos] = set()
 
-    states = [
+
+    states = deque()
+
+    states.extend([
         (pos, dir, cost)
         for (pos, dir, cost) in came_from
         if pos == end # and cost == min_cost
-    ]
+    ])
 
     while states:
-        state = states.pop()
+        state = states.popleft()
         pos, _, _ = state
         visited_tiles.add(pos)
-        states.extend(came_from[state])
+        for s in came_from[state]:
+            states.append(s)
 
     return len(visited_tiles)
 
