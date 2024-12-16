@@ -49,6 +49,8 @@
 ### [Day 15: Warehouse Woes](https://adventofcode.com/2024/day/15)
 [problem](https://adventofcode.com/2024/day/15) / [solution](./aoc2024/day15)
 
+### [Day 16: Reindeer Maze](https://adventofcode.com/2024/day/16)
+[problem](https://adventofcode.com/2024/day/16) / [solution](./aoc2024/day16)
 
 
 ## Year 2023
