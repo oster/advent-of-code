@@ -139,23 +139,29 @@ def compute_min_path(
     # heapq.heappush(queue, ))
 
     while queue:
-        _, (pos, dir) = heapq.heappop(queue)
+        cost_until_there, (pos, dir) = heapq.heappop(queue)
 
         if is_end(pos):
             break
 
+        best_cost_for_pos = cost_so_far[(pos, dir)]
+
+        if (pos, dir) in cost_so_far:
+            if cost_until_there > best_cost_for_pos:
+                continue
+
         for cost, new_state in neighbors(pos, dir):
-            new_cost = cost_so_far[(pos, dir)] + cost
+            new_cost = best_cost_for_pos + cost
             if new_state not in cost_so_far or new_cost <= cost_so_far[new_state]:
                 cost_so_far[new_state] = new_cost
 
                 new_pos, new_dir = new_state
                 came_from[new_pos, new_dir, new_cost].add(
-                    (pos, dir, cost_so_far[(pos, dir)])
+                    (pos, dir, best_cost_for_pos)
                 )
                 heapq.heappush(queue, (new_cost, new_state))
 
-    min_cost = min([cost for ((pos, _), cost) in cost_so_far.items() if pos == end])
+    min_cost = [cost for ((pos, _), cost) in cost_so_far.items() if pos == end].pop()
 
     return min_cost, came_from
 
@@ -192,7 +198,7 @@ def part2(filename: str) -> int:
     states = [
         (pos, dir, cost)
         for (pos, dir, cost) in came_from
-        if pos == end and cost == min_cost
+        if pos == end # and cost == min_cost
     ]
 
     while states:
@@ -213,7 +219,3 @@ assert ic(part1("./input.txt")) == 115500
 assert ic(part2("./sample.txt")) == 45
 assert ic(part2("./sample2.txt")) == 64
 assert ic(part2("./input.txt")) == 679
-
-# (126 75)
-# (127 75)
-# (128 75)
