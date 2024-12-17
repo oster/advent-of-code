@@ -1,0 +1,28 @@
+000	ADV: RA = RA // 2^3
+002	OUT: RA % 8
+004	NJZ: IF RA != 0: GOTO #0
+
+
+
+000	BST: RB = RA % 8            RB = RA % 8
+002	BXL: RB = RB XOR 5          RB = RB XOR 101       
+004	CDV: RC = RA // 2^RB        RC = RA >> RB
+006	ADV: RA = RA // 2^3         RA = RA >> 3 
+008	BXC: RB = RB XOR RC         RB = RB XOR RC
+010	BXL: RB = RB XOR 6          RB = RB XOR 110
+012	OUT: RB % 8                 print RB                                
+014	NJZ: IF RA != 0: GOTO #0
+
+
+
+RC = RA >> ((RA AND 111) XOR 101)
+print (RA AND 111) XOR 011 XOR RC 
+RA = RA >> 3
+
+
+
+001 000 100 101 010 001 110 010 110 100 111 001 000 011 111 110 011 010
+
+2415750340165530
+
+

@@ -46,11 +46,16 @@
 ### [Day 14: Restroom Redoubt](https://adventofcode.com/2024/day/14)
 [problem](https://adventofcode.com/2024/day/14) / [solution](./aoc2024/day14)
 
+
 ### [Day 15: Warehouse Woes](https://adventofcode.com/2024/day/15)
 [problem](https://adventofcode.com/2024/day/15) / [solution](./aoc2024/day15)
 
 ### [Day 16: Reindeer Maze](https://adventofcode.com/2024/day/16)
 [problem](https://adventofcode.com/2024/day/16) / [solution](./aoc2024/day16)
+
+### [Day 17: Chronospatial Computer](https://adventofcode.com/2024/day/17)
+[problem](https://adventofcode.com/2024/day/17) / [solution](./aoc2024/day17)
+
 
 
 ## Year 2023
