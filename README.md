@@ -56,6 +56,8 @@
 ### [Day 17: Chronospatial Computer](https://adventofcode.com/2024/day/17)
 [problem](https://adventofcode.com/2024/day/17) / [solution](./aoc2024/day17)
 
+### [Day 18: RAM Run](https://adventofcode.com/2024/day/18)
+[problem](https://adventofcode.com/2024/day/18) / [solution](./aoc2024/day18)
 
 
 ## Year 2023
