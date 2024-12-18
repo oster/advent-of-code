@@ -1,61 +1,24 @@
 import heapq
 from typing import Generator
 from icecream import ic
-from enum import IntEnum
-from collections import defaultdict, deque
+from collections import defaultdict
 
 from typing import NewType
 
-# type Grid = dict[Pos, int]
-# type Pos = tuple[int, int]
+type Grid = dict[Pos, int]
+type Pos = tuple[int, int]
 
-Pos = NewType("Pos", tuple[int, int])
-Grid = NewType("Grid", dict[Pos, str])
-
-
-def die(msg: str):
-    raise Exception(msg)
+# Pos = NewType("Pos", tuple[int, int])
+# Grid = NewType("Grid", dict[Pos, str])
 
 
-class Direction(IntEnum):
-    EAST = 0
-    SOUTH = 1
-    WEST = 2
-    NORTH = 3
-
-    def right(self):
-        return Direction((self + 1) % 4)
-
-    def left(self):
-        return Direction((self - 1) % 4)
-
-    def as_str(self):
-        return {
-            Direction.EAST: ">",
-            Direction.SOUTH: "v",
-            Direction.WEST: "<",
-            Direction.NORTH: "^",
-        }[self]
-
-
-def one_step(pos: Pos, dir: Direction) -> Pos:
-    x, y = pos
-    match dir:
-        case Direction.EAST:
-            return (x + 1, y)
-        case Direction.SOUTH:
-            return (x, y + 1)
-        case Direction.WEST:
-            return (x - 1, y)
-        case Direction.NORTH:
-            return (x, y - 1)
-    return (x, y)
+MAX_TIME = 16384
 
 
 def read_data(filename: str) -> tuple[dict[Pos, int], int]:
     with open(filename, "r") as data_file:
         time = 1
-        values = {}
+        values = defaultdict(lambda: MAX_TIME)
         for x, y in (
             map(int, line.strip().split(",")) for line in data_file.readlines()
         ):
@@ -65,7 +28,7 @@ def read_data(filename: str) -> tuple[dict[Pos, int], int]:
     return values, time
 
 
-def print_grid(grid: Grid, start: Pos, end: Pos, time: int = 16384) -> None:
+def print_grid(grid: Grid, start: Pos, end: Pos, time: int = MAX_TIME) -> None:
     min_x = min([x for x, _ in grid.keys()])
     max_x = max([x for x, _ in grid.keys()])
     min_y = min([y for _, y in grid.keys()])
@@ -102,32 +65,33 @@ def print_path(grid: Grid, path: list[Pos]) -> None:
 
 
 def find_shortest_path(
-    start: Pos, end: Pos, grid: Grid, grid_size: int, time: int = 16384
+    start: Pos, end: Pos, grid: Grid, grid_size: int, until_time: int
 ) -> tuple[int, list[Pos]]:
 
     def in_bounds(pos: Pos) -> bool:
         return pos[0] >= 0 and pos[0] < grid_size and pos[1] >= 0 and pos[1] < grid_size
 
     def is_valid(pos: Pos) -> bool:
-        return in_bounds(pos) and grid.get(pos, 16384) > time
+        return in_bounds(pos) and grid[pos] > until_time
 
     def is_end(pos: Pos) -> bool:
         return pos == end
 
     def four_neighbors(pos: Pos) -> Generator[Pos, None, None]:
-
-        for new_pos in [one_step(pos, dir) for dir in Direction]:
-            if is_valid(new_pos):
-                yield new_pos
+        x, y = pos
+        return (
+            pos
+            for pos in [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]
+            if is_valid(pos)
+        )
 
     def build_path(came_from: dict, end: Pos, start: Pos) -> list[Pos]:
         path = [end]
         current = end
-
         while current != start:
             current = came_from[current]
             path.append(current)
-
+        path.append(start)
         path.reverse()
         return path
 
@@ -144,9 +108,9 @@ def find_shortest_path(
         if is_end(pos):
             return cost_until_there, build_path(came_from, end, start)
 
-        best_cost_for_pos = cost_so_far[(pos)]
+        best_cost_for_pos = cost_so_far[pos]
 
-        if (pos) in cost_so_far:
+        if pos in cost_so_far:
             if cost_until_there > best_cost_for_pos:
                 continue
 
@@ -161,32 +125,29 @@ def find_shortest_path(
     return -1, []
 
 
-def part1(filename: str, grid_size: int, time: int, end: Pos) -> int:
-    grid, max_time = read_data(filename)
-    # print_grid(grid, (0,0), end, time)
-    length, _ = find_shortest_path((0, 0), end, grid, grid_size, time)
+def part1(filename: str, grid_size: int, at_time: int, end: Pos) -> int:
+    grid, _ = read_data(filename)
+    length, _ = find_shortest_path((0, 0), end, grid, grid_size, at_time)
     return length
 
 
-def part2(filename: str, grid_size: int, end: Pos) -> int:
+def part2(filename: str, grid_size: int, end: Pos) -> Pos:
     grid, max_time = read_data(filename)
-    # print_grid(grid, (0,0), end, time)
 
-    rock_at_time = {t: r for r, t in grid.items()}
-
+    rock_at_time: dict[int, Pos] = {t: r for r, t in grid.items()}
     need_recompute = True
     path = []
     length = 0
 
     stop_time = -1
-    for time in range(1, max_time):
+    for time in range(1, max_time + 1):
         need_recompute = need_recompute or rock_at_time[time] in path
         if need_recompute:
             need_recompute = False
             length, path = find_shortest_path((0, 0), end, grid, grid_size, time)
-        if length == -1:
-            stop_time = time
-            break
+            if length == -1:
+                stop_time = time
+                break
     return rock_at_time[stop_time]
 
 
