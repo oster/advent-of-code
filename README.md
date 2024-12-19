@@ -59,6 +59,10 @@
 ### [Day 18: RAM Run](https://adventofcode.com/2024/day/18)
 [problem](https://adventofcode.com/2024/day/18) / [solution](./aoc2024/day18)
 
+### [Day 19: Linen Layout](https://adventofcode.com/2024/day/19)
+[problem](https://adventofcode.com/2024/day/19) / [solution](./aoc2024/day19)
+
+
 
 ## Year 2023
 
