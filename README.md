@@ -62,6 +62,8 @@
 ### [Day 19: Linen Layout](https://adventofcode.com/2024/day/19)
 [problem](https://adventofcode.com/2024/day/19) / [solution](./aoc2024/day19)
 
+### [Day 20: Race Condition](https://adventofcode.com/2024/day/20)
+[problem](https://adventofcode.com/2024/day/20) / [solution](./aoc2024/day20)
 
 
 ## Year 2023

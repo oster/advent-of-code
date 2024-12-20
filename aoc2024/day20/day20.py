@@ -1,11 +1,11 @@
 from typing import Generator
 from icecream import ic
-from collections import defaultdict
 
-from typing import NewType
 
 type Grid = dict[Pos, int]
 type Pos = tuple[int, int]
+
+# from typing import NewType
 
 # Pos = NewType("Pos", tuple[int, int])
 # Grid = NewType("Grid", dict[Pos, str])
@@ -49,6 +49,7 @@ def print_grid(grid: Grid, start: Pos, end: Pos) -> None:
                 print(grid.get((x, y), "."), end="")
         print()
 
+
 def print_path(grid: Grid, path: list[Pos]) -> None:
     min_x = min([x for x, _ in grid.keys()])
     max_x = max([x for x, _ in grid.keys()])
@@ -66,11 +67,21 @@ def print_path(grid: Grid, path: list[Pos]) -> None:
 
 def next_neighbor(pos: Pos, grid: Grid, grid_size: int) -> Generator[Pos, None, None]:
     x, y = pos
-    return (pos for pos in [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)] if pos[0] >= 0 and pos[0] < grid_size and pos[1] >= 0 and pos[1] < grid_size and grid.get(pos, None) != "#")
+    return (
+        pos
+        for pos in [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]
+        if pos[0] >= 0
+        and pos[0] < grid_size
+        and pos[1] >= 0
+        and pos[1] < grid_size
+        and grid.get(pos, None) != "#"
+    )
 
 
-def compute_distances(start: Pos, end: Pos, grid: Grid, grid_size: int) -> tuple[set[Pos], dict[Pos, int]]:
-    distances = {} # Pos -> distance from start
+def compute_distances(
+    start: Pos, end: Pos, grid: Grid, grid_size: int
+) -> tuple[set[Pos], dict[Pos, int]]:
+    distances = {}  # Pos -> distance from start
     current = start
     dist = 0
     visited = set()
@@ -88,55 +99,64 @@ def compute_distances(start: Pos, end: Pos, grid: Grid, grid_size: int) -> tuple
     return visited, distances
 
 
-def part1(filename: str, min_gain: int = 0) -> int:
-    grid, grid_size, start, end = read_data(filename)
-    visited, distances = compute_distances(start, end, grid, grid_size)
-    path = sorted(visited, key=lambda pos: distances[pos]) 
-    count = 0
-    # gains = defaultdict(set)
-
-    for src_idx, src in enumerate(path):
-        src_x, src_y = src
-        for dst in path[src_idx+1:]:
-            dst_x, dst_y = dst
-            
-            dx = abs((dst_x - src_x))
-            dy = abs(dst_y - src_y)
-
-            if (dx == 2 and dy == 0) or (dx == 0 and dy == 2):
-                gain = distances[dst] - distances[src] - 2
-                if gain >= min_gain:
-                    # gains[gain].add((src, dst))
-                    count += 1
-    return count
-
-
 def manhattan(a: Pos, b: Pos) -> int:
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
-def part2(filename: str, min_gain: int = 0) -> int:
-    grid, grid_size, start, end = read_data(filename)
+def manhattan_valid_neighbors(
+    pos: Pos, path: list[Pos], distances: dict[Pos, int], distance: int
+) -> set[Pos]:
+    px, py = pos
+    neighbors = set()
+    for deltaX in range(distance + 1):
+        for deltaY in range(distance - deltaX + 1):
+            if deltaX == 0 and deltaY == 0:
+                continue
+
+            if 2 <= abs(deltaX) + abs(deltaY) <= distance:
+                for nn in [
+                    (px + deltaX, py + deltaY),
+                    (px - deltaX, py + deltaY),
+                    (px + deltaX, py - deltaY),
+                    (px - deltaX, py - deltaY),
+                ]:
+                    if nn in path and distances[nn] > distances[pos]:
+                        neighbors.add(nn)
+
+    return neighbors
+
+
+def solve(
+    start: Pos,
+    end: Pos,
+    cheat_distance: int,
+    min_gain_to_cheat: int,
+    grid: Grid,
+    grid_size: int,
+) -> int:
     visited, distances = compute_distances(start, end, grid, grid_size)
-
-
-    path = sorted(visited, key=lambda pos: distances[pos]) 
+    path = sorted(visited, key=lambda pos: distances[pos])
     count = 0
-    # gains = defaultdict(set)
 
     for src_idx, src in enumerate(path):
-        src_x, src_y = src
-        for dst in path[src_idx+1:]:
-            dst_x, dst_y = dst
-            
-            if manhattan(src, dst) <= 20:
+        # for dst in manhattan_valid_neighbors(src, path, distances, cheat_distance):
+        for dst in path[src_idx + 1 :]:
+            if manhattan(src, dst) <= cheat_distance:
                 gain = distances[dst] - distances[src] - manhattan(src, dst)
-                if gain >= min_gain:
-                    # gains[gain].add((src, dst))
+                if gain >= min_gain_to_cheat:
                     count += 1
 
     return count
 
+
+def part1(filename: str, min_gain: int = 0) -> int:
+    grid, grid_size, start, end = read_data(filename)
+    return solve(start, end, 2, min_gain, grid, grid_size)
+
+
+def part2(filename: str, min_gain: int = 0) -> int:
+    grid, grid_size, start, end = read_data(filename)
+    return solve(start, end, 20, min_gain, grid, grid_size)
 
 
 # grid, grid_size, start, end = read_data('sample.txt')
@@ -151,8 +171,8 @@ def part2(filename: str, min_gain: int = 0) -> int:
 # assert max(distances.values()) == 9452
 
 
-assert ic(part1('sample.txt', 1)) == 44
-assert ic(part1('input.txt', 100)) == 1438
+assert ic(part1("sample.txt", 1)) == 44
+assert ic(part1("input.txt", 100)) == 1438
 
-assert ic(part2('./sample.txt', 50)) == 285
-assert ic(part2('./input.txt', 100)) == 1026446
+assert ic(part2("./sample.txt", 50)) == 285
+assert ic(part2("./input.txt", 100)) == 1026446
