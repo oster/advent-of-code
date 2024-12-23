@@ -65,6 +65,16 @@
 ### [Day 20: Race Condition](https://adventofcode.com/2024/day/20)
 [problem](https://adventofcode.com/2024/day/20) / [solution](./aoc2024/day20)
 
+### [Day 21: Keypad Conundrum](https://adventofcode.com/2024/day/21)
+[problem](https://adventofcode.com/2024/day/21) / [solution](./aoc2024/day21)
+
+### [Day 22: Monkey Market](https://adventofcode.com/2024/day/22)
+[problem](https://adventofcode.com/2024/day/22) / [solution](./aoc2024/day22)
+
+
+### [Day 23: LAN Party](https://adventofcode.com/2024/day/23)
+[problem](https://adventofcode.com/2024/day/23) / [solution](./aoc2024/day23)
+
 
 ## Year 2023
 
