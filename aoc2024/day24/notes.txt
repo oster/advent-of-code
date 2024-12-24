@@ -1,0 +1,63 @@
+- z should be output of a XOR 
+  (except z45 "carry" which is output of an OR)
+
+mcr AND sjd -> z08
+x18 AND y18 -> z18
+fwj OR vsq -> z23
+
+
+- x, y should be input of XOR and AND
+
+
+
+
+
+- output of (x XOR y) should be input of another XOR and another AND
+  (except x0)
+
+x14 XOR y14 -> jss
+
+
+- output of (x AND y) should be input of and OR
+  (except x0)
+
+x14 AND y14 -> rds
+(x18 AND y18 -> z18)
+
+
+- input of OR should be two AND
+
+sjd XOR mcr -> mvb
+(x14 AND y14 -> rds)
+mfk XOR fmm -> wss
+
+
+
+
+----
+x14 XOR y14 -> jss
+sjd XOR mcr -> mvb
+x14 AND y14 -> rds
+mfk XOR fmm -> wss
+mcr AND sjd -> z08
+x18 AND y18 -> z18
+fwj OR vsq -> z23
+
+
+----
+
+x14 XOR y14 -> jss      jss <-> rds
+x14 AND y14 -> rds
+
+
+sjd XOR mcr -> mvb      mvb <-> z08
+mcr AND sjd -> z08
+
+
+mfk XOR fmm -> wss      wss <-> z18
+x18 AND y18 -> z18
+
+fwj OR vsq -> z23       z23 <-> bmn
+qmd XOR bpr -> bmn
+
+
