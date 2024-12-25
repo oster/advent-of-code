@@ -3,6 +3,9 @@
 
 ## Year 2024
 
+![](./figs/aoc-2024-completed.png)
+
+
 ### [Day 01: Historian Hysteria](https://adventofcode.com/2024/day/1)
 [problem](https://adventofcode.com/2024/day/1) / [solution](./aoc2024/day01)
 
@@ -74,6 +77,12 @@
 
 ### [Day 23: LAN Party](https://adventofcode.com/2024/day/23)
 [problem](https://adventofcode.com/2024/day/23) / [solution](./aoc2024/day23)
+
+### [Day 24: Crossed Wires](https://adventofcode.com/2024/day/24)
+[problem](https://adventofcode.com/2024/day/24) / [solution](./aoc2024/day24)
+
+### [Day 25: Code Chronicle](https://adventofcode.com/2024/day/25)
+[problem](https://adventofcode.com/2024/day/25) / [solution](./aoc2024/day25)
 
 
 ## Year 2023
