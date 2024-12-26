@@ -5,7 +5,7 @@ from sys import setrecursionlimit
 
 setrecursionlimit(1000)
 
-def read_data(filename: str) -> list[int]:
+def read_data(filename: str) -> dict[str, tuple[str, str, str]]:
     circuit = {}
     with open(filename, "r") as data_file:
         data = data_file.read()
@@ -146,7 +146,7 @@ def part2_sample(filename: str) -> int:
 
 
 
-def part2(filename: str) -> int:
+def part2(filename: str) -> str:
     circuit = read_data(filename)
     # ic(circuit)
 
