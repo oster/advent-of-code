@@ -1,5 +1,10 @@
 # Advent Of Code
 
+## Year 2025
+
+### [Day 01: Secret Entrance](https://adventofcode.com/2025/day/1)
+[problem](https://adventofcode.com/2025/day/1) / [solution](./aoc2025/day01)
+
 
 ## Year 2024
 
