@@ -13,7 +13,8 @@ def read_data(filename: str) -> tuple[Grid, int]:
         for y, line in enumerate(input_file.readlines()):
             grid_size += 1
             for x, c in enumerate(line.strip()):
-                grid[x, y] = c
+                if c == "@":
+                    grid[x, y] = c
     return grid, grid_size
 
 
@@ -29,14 +30,11 @@ def eight_directions() -> list[Pos]:
     return [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]
 
 
-def part1(filename: str) -> int:
+def part1_brute(filename: str) -> int:
     grid, size = read_data(filename)
 
     count = 0
     for (x, y), c in grid.items():
-        if c != "@":
-            continue
-
         adjacent_rolls = 0
 
         for direction in eight_directions():
@@ -53,7 +51,7 @@ def part1(filename: str) -> int:
     return count
 
 
-def part2(filename: str) -> int:
+def part2_brute(filename: str) -> int:
     grid, size = read_data(filename)
 
     count = 0
@@ -64,9 +62,6 @@ def part2(filename: str) -> int:
         grid_copy = grid.copy()
 
         for (x, y), c in grid.items():
-            if c != "@":
-                continue
-
             adjacent_rolls = 0
 
             for direction in eight_directions():
@@ -79,10 +74,56 @@ def part2(filename: str) -> int:
 
             if adjacent_rolls < 4:
                 count += 1
-                grid_copy[(x, y)] = "."
+                del grid_copy[(x, y)]
                 changed = True
 
         grid = grid_copy
+
+    return count
+
+
+def roll_neighbors(node, grid, size) -> list[tuple[int, int]]:
+    x, y = node
+    neighbors = [
+        (nx, ny)
+        for dx, dy in eight_directions()
+        if (nx := x + dx) >= 0
+        and nx < size
+        and (ny := y + dy) >= 0
+        and ny < size
+        and (nx, ny) in grid
+    ]
+
+    return neighbors
+
+
+def part1(filename: str) -> int:
+    grid, size = read_data(filename)
+    return sum(
+        map(
+            lambda node: 1 if (len(roll_neighbors(node, grid, size)) < 4) else 0,
+            grid.keys(),
+        )
+    )
+
+
+def part2(filename: str) -> int:
+    grid, size = read_data(filename)
+
+    neighbors_of_node = {node: roll_neighbors(node, grid, size) for node in grid.keys()}
+    count = 0
+
+    changed = True
+    while changed:
+        changed = False
+        for node, neighbors in neighbors_of_node.copy().items():
+            neighbors = list(filter(lambda node: node in neighbors_of_node, neighbors))
+            if len(neighbors) < 4:
+                del neighbors_of_node[node]
+                changed = True
+                count += 1
+            # else:
+            #     neighbors_of_node[node] = neighbors
 
     return count
 
