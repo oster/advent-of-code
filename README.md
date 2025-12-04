@@ -5,6 +5,15 @@
 ### [Day 01: Secret Entrance](https://adventofcode.com/2025/day/1)
 [problem](https://adventofcode.com/2025/day/1) / [solution](./aoc2025/day01)
 
+### [Day 02: Gift Shop](https://adventofcode.com/2025/day/2)
+[problem](https://adventofcode.com/2025/day/2) / [solution](./aoc2025/day02)
+
+### [Day 03: Loby](https://adventofcode.com/2025/day/3)
+[problem](https://adventofcode.com/2025/day/3) / [solution](./aoc2025/day03)
+
+### [Day 04: Printing Department](https://adventofcode.com/2025/day/4)
+[problem](https://adventofcode.com/2025/day/4) / [solution](./aoc2025/day04)
+
 
 ## Year 2024
 
