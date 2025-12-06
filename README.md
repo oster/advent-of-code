@@ -14,6 +14,12 @@
 ### [Day 04: Printing Department](https://adventofcode.com/2025/day/4)
 [problem](https://adventofcode.com/2025/day/4) / [solution](./aoc2025/day04)
 
+### [Day 05: Cafeteria](https://adventofcode.com/2025/day/5)
+[problem](https://adventofcode.com/2025/day/5) / [solution](./aoc2025/day05)
+
+### [Day 06: Trash Compactor](https://adventofcode.com/2025/day/6)
+[problem](https://adventofcode.com/2025/day/6) / [solution](./aoc2025/day06)
+
 
 ## Year 2024
 
