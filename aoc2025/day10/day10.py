@@ -23,6 +23,8 @@ def read_data(filename: str):
 def solve_machine(expected_lights, buttons) -> int:
     states = deque()
 
+    visited = set()
+
     lights = tuple([ False ] * len(expected_lights))
     states.append((0, lights))
     step = 0
@@ -37,7 +39,11 @@ def solve_machine(expected_lights, buttons) -> int:
             updated_lights = list(state)
             for s in b:
                 updated_lights[s] = not updated_lights[s] 
+
             new_state = tuple(updated_lights)
+            if new_state in visited:
+                continue
+            visited.add(new_state)
             states.append((step + 1, new_state))
     return step
 
