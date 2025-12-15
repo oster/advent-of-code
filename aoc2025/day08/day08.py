@@ -100,7 +100,8 @@ def part2(filename: str) -> int:
 
         _, a, b = all_pairs.pop(0)
         merge(a, b, circuits_by_pos, unique_circuits)
-        if len(circuits_by_pos) == junction_box_count:  # and len(unique_circuits) == 1:
+
+        if len(circuits_by_pos) == junction_box_count and len(unique_circuits) == 1:
             return a[0] * b[0]
 
     return -1
