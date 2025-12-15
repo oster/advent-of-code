@@ -2,6 +2,9 @@
 
 ## Year 2025
 
+![](./figs/aoc-2025-completed.png)
+
+
 ### [Day 01: Secret Entrance](https://adventofcode.com/2025/day/1)
 [problem](https://adventofcode.com/2025/day/1) / [solution](./aoc2025/day01)
 
@@ -19,6 +22,25 @@
 
 ### [Day 06: Trash Compactor](https://adventofcode.com/2025/day/6)
 [problem](https://adventofcode.com/2025/day/6) / [solution](./aoc2025/day06)
+
+
+### [Day 07: Laboratories](https://adventofcode.com/2025/day/7)
+[problem](https://adventofcode.com/2025/day/7) / [solution](./aoc2025/day07)
+
+### [Day 08: Playground](https://adventofcode.com/2025/day/8)
+[problem](https://adventofcode.com/2025/day/8) / [solution](./aoc2025/day08)
+
+### [Day 09: Movie Theater](https://adventofcode.com/2025/day/9)
+[problem](https://adventofcode.com/2025/day/9) / [solution](./aoc2025/day09)
+
+### [Day 10: Factory](https://adventofcode.com/2025/day/10)
+[problem](https://adventofcode.com/2025/day/10) / [solution](./aoc2025/day10)
+
+### [Day 11: Reactor](https://adventofcode.com/2025/day/11)
+[problem](https://adventofcode.com/2025/day/11) / [solution](./aoc2025/day11)
+
+### [Day 12: Christmas Tree Farm](https://adventofcode.com/2025/day/12)
+[problem](https://adventofcode.com/2025/day/12) / [solution](./aoc2025/day12)
 
 
 ## Year 2024
