@@ -80,6 +80,7 @@ def part1(filename: str, round: int) -> int:
         merge(a, b, circuits_by_pos, unique_circuits)
 
     k = sorted(unique_circuits, key=lambda c: len(c), reverse=True)
+
     return len(k[0]) * len(k[1]) * len(k[2])
 
 
@@ -114,3 +115,6 @@ assert ic(part1("./input.txt", 1000)) == 171503
 
 assert ic(part2("./sample.txt")) == 25272
 assert ic(part2("./input.txt")) == 9069509600
+
+assert ic(r := part1("./input2.txt", 1000)) == 117000, f'got {r}'
+assert ic(r := part2("./input2.txt")) == 8368033065, f'got {r}'
